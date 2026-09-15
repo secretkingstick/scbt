@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英検2級 リスニング問題</title>
+    <link rel="stylesheet" href="css.css">
+</head>
+<body>
+    <div class="container">
+        <h1>英検2級 リスニング</h1>
+
+        <!-- 회차 선택 메뉴 -->
+        <nav class="page-nav">
+            <button onclick="changeExam('2023-3')">2023年 第3回</button>
+            <button onclick="changeExam('2024-1')">2024年 第1回</button>
+            <button onclick="changeExam('2024-2')">2024年 第2回</button>
+            <button onclick="changeExam('2024-3')">2024年 第3回</button>
+        </nav>
+
+        <!-- 동적 문제 출력 영역 -->
+        <div id="content-area"></div>
+    </div>
+
+    <script src="js.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英検2級 リーディング学習アプリ</title>
+    <link rel="stylesheet" href="css1.css">
+</head>
+<body>
+    <header>
+        <h1>英検2級 リーディング</h1>
+        <div id="test-title">2025年 第3回</div>
+    </header>
+
+    <main class="main-container">
+        <!-- ナビゲーションバー -->
+        <nav id="nav-bar" class="nav-bar">
+            <!-- 動的生成 -->
+        </nav>
+
+        <!-- クイズカード -->
+        <div class="quiz-card" id="quiz-card-wrapper">
+            <!-- 1~17番：短文問題ビュー -->
+            <div id="single-question-view" class="view-container">
+                <div class="quiz-header">
+                    <span id="section-title-badge" class="badge">第1問</span>
+                    <span id="question-number">問 1</span>
+                </div>
+                <div id="question-sentence" class="question-sentence">
+                    ここに問題の英文が表示されます。
+                </div>
+                <div id="options-container" class="options-list">
+                    <!-- 選択肢 -->
+                </div>
+                <div id="feedback-container" class="feedback hidden">
+                    <div id="feedback-result" class="result-text"></div>
+                </div>
+            </div>
+
+            <!-- 18~31番：長文読解ビュー (左: 本文 / 右: 問題) -->
+            <div id="passage-question-view" class="view-container hidden">
+                <div class="quiz-header">
+                    <span id="passage-section-badge" class="badge">第2問</span>
+                    <span id="passage-title-text">A. A New Approach to Design</span>
+                </div>
+
+                <!-- ツールバー -->
+                <div class="drawing-toolbar">
+                    <span class="toolbar-label">ツール:</span>
+                    <button type="button" class="tool-btn active" data-tool="none" onclick="setTool('none')">選択 / 基本</button>
+                    <button type="button" class="tool-btn red-pen" data-tool="red" onclick="setTool('red')">赤ペン</button>
+                    <button type="button" class="tool-btn marker" data-tool="marker" onclick="setTool('marker')">マーカー</button>
+                    <button type="button" class="tool-btn eraser" data-tool="eraser" onclick="setTool('eraser')">消しゴム</button>
+                    <button type="button" class="tool-btn clear-all" onclick="clearCanvas()">すべて消去</button>
+                </div>
+
+                <div class="split-layout">
+                    <!-- 左側：本文エリア -->
+                    <div class="passage-pane-wrapper">
+                        <div class="passage-pane" id="passage-text-pane">
+                            <!-- 本文 -->
+                        </div>
+                        <canvas id="draw-canvas"></canvas>
+                    </div>
+                    
+                    <!-- 右側：問題エリア -->
+                    <div class="questions-pane" id="passage-questions-pane">
+                        <!-- 問題リスト -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 前へ・次へボタン -->
+            <div class="navigation-buttons">
+                <button id="prev-btn" class="nav-btn" onclick="prevQuestion()">前の問題</button>
+                <button id="next-btn" class="nav-btn primary" onclick="nextQuestion()">次の問題</button>
+            </div>
+
+            <!-- 全体 答え合わせボタン 영역 (하단 고정) -->
+            <div class="global-check-container">
+                <button type="button" id="global-check-btn" class="global-check-btn" onclick="checkAllAnswers()">一括で答え合わせをする</button>
+                <div id="global-score-display" class="global-score hidden"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js1.js"></script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f5f7fa;
+    margin: 0;
+    padding: 10px 20px 20px 20px; /* 상단 여백을 20px -> 10px로 축소 */
+    color: #333;
+}
+
+h1 {
+    font-size: 1.25rem;            /* 폰트 크기 살짝 축소 */
+    text-align: center;
+    color: #111;
+    margin-top: 5px;               /* 상단 마진 대폭 축소 */
+    margin-bottom: 8px;            /* 하단 마진 축소 */
+}
+
+/* 상단 회차 선택 버튼 Nav */
+.page-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 12px;           /* 아래 문제 영역과의 여백 절반 감소 */
+    position: sticky;
+    top: 0;
+    background: #f5f7fa;
+    padding: 4px 0;                /* 위아래 패딩 최소화 */
+    z-index: 100;
+}
+
+.page-nav button {
+    padding: 6px 14px;             /* 버튼 내부 여백을 슬림하게 변경 */
+    font-size: 0.88rem;
+    cursor: pointer;
+    background-color: #ffffff;
+    color: #333;
+    border: 1px solid #dcdcdc;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.page-nav button:hover {
+    background-color: #eef4ff;
+    border-color: #1a73e8;
+}
+
+.page-nav button.active {
+    background-color: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+}
+
+/* 1~30번 문제 퀵 네비게이션 Box */
+.quick-nav-box {
+    margin-bottom: 24px;
+}
+
+.quick-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.quick-nav-header .title {
+    font-weight: bold;
+    color: #555;
+    font-size: 14px;
+}
+
+.quick-nav-header .sub-text {
+    color: #1a73e8;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.quick-nav-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.q-nav-btn {
+    width: 38px;
+    height: 38px;
+    background: #fff;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.q-nav-btn:hover {
+    background: #f0f4f9;
+}
+
+.q-nav-btn.active {
+    background: #fff;
+    border: 2px solid #0056b3;
+    color: #0056b3;
+}
+
+/* 푼 문제 상단 퀵버튼 표시 (선택 완료 시) */
+.q-nav-btn.answered {
+    background-color: #e8f0fe;
+    border-color: #1a73e8;
+    color: #1a73e8;
+}
+
+/* 문제 전체 영역 */
+.question-card {
+    background-color: #ffffff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    scroll-margin-top: 80px;
+}
+
+/* 상단 지문 영역 (원형 아이콘 + 안내문) */
+.q-instruction {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.instruction-icon {
+    width: 32px;
+    height: 32px;
+    background-color: #2e3e38;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.instruction-text {
+    font-size: 16px;
+    color: #333333;
+    line-height: 1.5;
+    padding-top: 3px;
+}
+
+/* 문제 번호 제목 (No. 1) */
+.q-number-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 12px;
+}
+
+/* 회색 구분선 */
+.q-divider {
+    height: 6px;
+    background-color: #b0b7bd;
+    border-radius: 3px;
+    margin-bottom: 24px;
+}
+
+/* 보기 리스트 */
+.options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* 보기 아이템 (왼쪽 회색 네모 + 오른쪽 밝은 회색 배경) */
+.option-item {
+    display: flex;
+    align-items: stretch;
+    background-color: #f5f5f5;
+    border-radius: 2px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: background-color 0.2s;
+}
+
+/* 보기 선택 시 효과 (파란색 하이라이트) */
+.option-item.selected {
+    background-color: #e8f0fe;
+}
+
+.option-item.selected .opt-num-box {
+    background-color: #1a73e8;
+}
+
+.option-item.selected .opt-circle {
+    background-color: #ffffff;
+    color: #1a73e8;
+}
+
+/* 왼쪽 회색 영역 */
+.opt-num-box {
+    width: 60px;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* 회색 영역 안의 원형 번호 */
+.opt-circle {
+    width: 28px;
+    height: 28px;
+    background-color: #9e9e9e;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+/* 보기 텍스트 */
+.opt-text {
+    padding: 16px 20px;
+    font-size: 24px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+}
+
+/* 정답/오답 표시 스타일 (필요 시 활용) */
+.option-item.correct {
+    background-color: #f8fff9;
+}
+
+.option-item.correct .opt-num-box {
+    background-color: #28a745;
+}
+
+/* 하단 이전/다음 이동 버튼 레이아웃 */
+.card-footer-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.nav-control-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.nav-control-btn.primary {
+    background-color: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+}
+
+.nav-control-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* 채점 후 맞춘 문제 / 틀린 문제 표시 */
+.q-nav-btn.correct-num {
+    background-color: #d4edda !important;
+    border-color: #28a745 !important;
+    color: #155724 !important;
+}
+
+.q-nav-btn.wrong-num {
+    background-color: #f8d7da !important;
+    border-color: #dc3545 !important;
+    color: #721c24 !important;
+}
+
+/* 정답 보기 강조 */
+.option-item.correct {
+    background-color: #d4edda !important;
+    border: 1px solid #28a745;
+}
+.option-item.correct .opt-num-box {
+    background-color: #28a745 !important;
+}
+
+/* 내가 틀린 보기 강조 */
+.option-item.wrong {
+    background-color: #f8d7da !important;
+    border: 1px solid #dc3545;
+}
+.option-item.wrong .opt-num-box {
+    background-color: #dc3545 !important;
+}

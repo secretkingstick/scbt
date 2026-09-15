@@ -3,25 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>英検2級 リスニング問題</title>
-    <link rel="stylesheet" href="css.css">
+    <title>英検2級 リーディング学習アプリ</title>
 </head>
 <body>
-    <div class="container">
-        <h1>英検2級 リスニング</h1>
+    <header>
+        <h1>英検2級 SCBT</h1>
+    </header>
 
-        <!-- 회차 선택 메뉴 -->
-        <nav class="page-nav">
-            <button onclick="changeExam('2023-3')">2023年 第3回</button>
-            <button onclick="changeExam('2024-1')">2024年 第1回</button>
-            <button onclick="changeExam('2024-2')">2024年 第2回</button>
-            <button onclick="changeExam('2024-3')">2024年 第3回</button>
-        </nav>
+    <main class="main-container">
+        <div class="app-switch-nav">
+            <a href="/l/">リーディング学習</a><br>
+            <a href="/r/">リスニング学習</a>
+        </div>
+    </main>
 
-        <!-- 동적 문제 출력 영역 -->
-        <div id="content-area"></div>
-    </div>
-
-    <script src="js.js"></script>
+    <script src="js1.js"></script>
 </body>
 </html>
