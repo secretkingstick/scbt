@@ -141,7 +141,7 @@ const examData = {
     }
 };
 
-let currentExamKey = "2023-3";
+let currentExamKey = "2024-1";
 let currentQuestionIndex = 0; 
 let userAnswers = {}; 
 let isSubmitted = false; // 채점 완료 여부
