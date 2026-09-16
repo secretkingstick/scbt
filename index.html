@@ -3,20 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>英検2級 リーディング学習アプリ</title>
+    <title>英検2級 総合学習アプリ</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #home-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+            gap: 20px;
+            text-align: center;
+            padding: 20px;
+        }
+        #home-view h1 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .menu-section {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .menu-section h2 {
+            font-size: 1.25rem;
+            color: #34495e;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+        .exam-btn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .exam-select-btn {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .exam-select-btn:hover {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+        .app-header-bar {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+        }
+        .nav-switch-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .switch-mode-btn, .home-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .home-btn { background-color: #7f8c8d; }
+        .switch-mode-btn:hover { background-color: #2980b9; }
+        .home-btn:hover { background-color: #636e72; }
+        .view-hidden { display: none !important; }
+        .page-title-banner {
+            background-color: #f1f5f9;
+            border-left: 5px solid #3498db;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .page-title-banner h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #1e293b;
+        }
+        .bottom-home-container {
+            text-align: center;
+            margin: 20px 0;
+            padding-top: 15px;
+        }
+        .bottom-home-btn {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .bottom-home-btn:hover { background-color: #636e72; }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>英検2級 SCBT</h1>
-    </header>
 
-    <main class="main-container">
-        <div class="app-switch-nav">
-            <a href="/l/">リーディング学習</a><br>
-            <a href="/r/">リスニング学習</a>
+    <div id="home-view">
+        <h1>英検2級 総合学習アプリ</h1>
+        <p style="color: #666; font-size: 1rem; margin-bottom: 10px;">学習したい問題の回を選択してください。</p>
+        
+        <div class="menu-section">
+            <h2>🎧 リスニング</h2>
+            <div class="exam-btn-grid">
+                <button class="exam-select-btn" onclick="startListening('2023-3')">2023年 第3回</button>
+                <button class="exam-select-btn" onclick="startListening('2024-1')">2024年 第1回</button>
+                <button class="exam-select-btn" onclick="startListening('2024-2')">2024年 第2回</button>
+                <button class="exam-select-btn" onclick="startListening('2024-3')">2024年 第3回</button>
+            </div>
         </div>
-    </main>
 
-    <script src="js1.js"></script>
+        <div class="menu-section">
+            <h2>📖 リーディング</h2>
+            <div class="exam-btn-grid">
+                <button class="exam-select-btn" onclick="startReading('2023-3')">2023年 第3回</button>
+                <button class="exam-select-btn" onclick="startReading('2024-1')">2024年 第1回</button>
+                <button class="exam-select-btn" onclick="startReading('2024-2')">2024年 第2回</button>
+                <button class="exam-select-btn" onclick="startReading('2024-3')">2024年 第3回</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mode-header" class="app-header-bar view-hidden">
+        <h2 id="mode-header-title" style="font-size: 1.1rem; margin: 0;">英検2級</h2>
+        <div class="nav-switch-btns">
+            <button class="switch-mode-btn" id="to-other-mode-btn" onclick="toggleMode()">ほかのモードへ切り替え</button>
+            <button class="home-btn" onclick="goHome(true)">最初のページへ</button>
+        </div>
+    </div>
+
+    <div id="listening-app" class="view-hidden">
+        <div class="container">
+            <div class="page-title-banner">
+                <h2 id="listening-exam-title">🎧 英検2級 リスニング</h2>
+            </div>
+            <div id="content-area"></div>
+            <div class="bottom-home-container">
+                <button class="bottom-home-btn" onclick="goHome(true)">🏠 最初のページに戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reading-app" class="view-hidden">
+        <main class="main-container">
+            <div class="page-title-banner">
+                <h2 id="reading-exam-title">📖 英検2級 リーディング</h2>
+            </div>
+            <!-- ナビゲーションバー (문제 번호 링크 리스트) -->
+            <nav id="nav-bar" class="nav-bar" style="margin-bottom: 20px;"></nav>
+
+            <div class="quiz-card" id="quiz-card-wrapper">
+                <div id="single-question-view" class="view-container">
+                    <div class="quiz-header">
+                        <span id="section-title-badge" class="badge">第1問</span>
+                        <span id="question-number">問 1</span>
+                    </div>
+                    <div id="question-sentence" class="question-sentence"></div>
+                    <div id="options-container" class="options-list"></div>
+                    <div id="feedback-container" class="feedback hidden">
+                        <div id="feedback-result" class="result-text"></div>
+                    </div>
+                </div>
+
+                <div id="passage-question-view" class="view-container hidden">
+                    <div class="quiz-header">
+                        <span id="passage-section-badge" class="badge">第2問</span>
+                        <span id="passage-title-text"></span>
+                    </div>
+                    
+                    <!-- 툴바 -->
+                    <div class="drawing-toolbar">
+                        <span class="toolbar-label">ツール:</span>
+                        <button type="button" class="tool-btn active" data-tool="none" onclick="setTool('none')">選択 / 基本</button>
+                        <button type="button" class="tool-btn red-pen" data-tool="red" onclick="setTool('red')">赤ペン</button>
+                        <button type="button" class="tool-btn marker" data-tool="marker" onclick="setTool('marker')">マーカー</button>
+                        <button type="button" class="tool-btn eraser" data-tool="eraser" onclick="setTool('eraser')">消しゴム</button>
+                        <button type="button" class="tool-btn clear-all" onclick="clearCanvas()">すべて消去</button>
+                    </div>
+
+                    <!-- 1번(왼쪽 본문)과 2번(오른쪽 문제)을 좌우로 배치하는 컨테이너 -->
+                    <div class="split-layout">
+                        <!-- 왼쪽: 본문 및 캔버스 (1번) -->
+                        <div class="passage-pane-wrapper">
+                            <div class="passage-pane" id="passage-text-pane"></div>
+                            <canvas id="draw-canvas"></canvas>
+                        </div>
+                        
+                        <!-- 오른쪽: 본문 관련 문제들 (2번) -->
+                        <div class="questions-pane" id="passage-questions-pane"></div>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button id="prev-btn" class="nav-btn" onclick="prevQuestion()">前の問題</button>
+                    <button id="next-btn" class="nav-btn primary" onclick="nextQuestion()">次の問題</button>
+                </div>
+
+                <div class="global-check-container" style="margin-top: 30px; border-top: 3px solid #3498db; padding-top: 20px;">
+                    <button type="button" id="global-check-btn" class="global-check-btn" onclick="checkAllAnswers()">一括で答え合わせをする</button>
+                    <div id="global-score-display" class="global-score hidden"></div>
+                </div>
+
+                <div class="bottom-home-container">
+                    <button class="bottom-home-btn" onclick="goHome(true)">🏠 最初のページに戻る</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js.js"></script>
+    <script>
+        let currentMode = 'home';
+        let currentExamId = '';
+
+        function startListening(examKey) {
+            currentMode = 'listening';
+            currentExamId = examKey;
+            
+            history.pushState({ mode: 'listening', exam: examKey }, '', '#listening-' + examKey);
+            
+            document.getElementById('home-view').classList.add('view-hidden');
+            document.getElementById('mode-header').classList.remove('view-hidden');
+            document.getElementById('listening-app').classList.remove('view-hidden');
+            document.getElementById('reading-app').classList.add('view-hidden');
+            
+            document.getElementById('mode-header-title').innerText = `英検2級 リスニング (${examKey})`;
+            document.getElementById('listening-exam-title').innerText = `🎧 英検2級 リスニング (${examKey})`;
+            document.getElementById('to-other-mode-btn').innerText = '📖 リーディングへ切り替え';
+
+            if (typeof changeExam === 'function') {
+                changeExam(examKey);
+            }
+        }
+
+        function startReading(examKey) {
+            currentMode = 'reading';
+            currentExamId = examKey;
+            
+            history.pushState({ mode: 'reading', exam: examKey }, '', '#reading-' + examKey);
+
+            document.getElementById('home-view').classList.add('view-hidden');
+            document.getElementById('mode-header').classList.remove('view-hidden');
+            document.getElementById('reading-app').classList.remove('view-hidden');
+            document.getElementById('listening-app').classList.add('view-hidden');
+            
+            document.getElementById('mode-header-title').innerText = `英検2級 リーディング (${examKey})`;
+            document.getElementById('reading-exam-title').innerText = `📖 英検2級 リーディング (${examKey})`;
+            document.getElementById('to-other-mode-btn').innerText = '🎧 リスニングへ切り替え';
+
+            if (typeof initApp === 'function') {
+                initApp();
+            }
+        }
+
+        function toggleMode() {
+            if (currentMode === 'listening') {
+                startReading(currentExamId || '2024-1');
+            } else {
+                startListening(currentExamId || '2024-1');
+            }
+        }
+
+        function goHome(pushHistory = false) {
+            currentMode = 'home';
+            if (pushHistory) {
+                history.pushState({ mode: 'home' }, '', '#home');
+            }
+            document.getElementById('home-view').classList.remove('view-hidden');
+            document.getElementById('mode-header').classList.add('view-hidden');
+            document.getElementById('listening-app').classList.add('view-hidden');
+            document.getElementById('reading-app').classList.add('view-hidden');
+        }
+
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.mode) {
+                if (event.state.mode === 'listening') {
+                    startListening(event.state.exam);
+                } else if (event.state.mode === 'reading') {
+                    startReading(event.state.exam);
+                } else {
+                    goHome(false);
+                }
+            } else {
+                goHome(false);
+            }
+        });
+    </script>
 </body>
 </html>
