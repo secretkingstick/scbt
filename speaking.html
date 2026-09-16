@@ -28,6 +28,29 @@
             justify-content: space-between;
             align-items: center;
         }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* 시험 회차 선택 드롭다운 스타일 */
+        .exam-select {
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            color: #333;
+            cursor: pointer;
+        }
+        .exam-select:focus {
+            outline: none;
+            border-color: #3b71ca;
+        }
+
         .nav-links {
             display: flex;
             gap: 10px;
@@ -184,7 +207,6 @@
             color: #adb5bd;
         }
         
-        /* 타이머 글자 크게 수정 */
         .timer-badge {
             position: absolute;
             bottom: -14px;
@@ -192,8 +214,8 @@
             color: white;
             padding: 4px 14px;
             border-radius: 16px;
-            font-size: 20px; /* 크기 확대 */
-            font-weight: 800; /* 두껍게 */
+            font-size: 20px;
+            font-weight: 800;
             letter-spacing: 1px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             display: none;
@@ -269,7 +291,12 @@
 <body>
 
     <header>
-        <div style="font-weight: bold; font-size: 16px; color: #495057;">2025年度 第2回 面接シミュレーター</div>
+        <div class="header-left">
+            <select class="exam-select" id="examSelect" onchange="changeExamSession()">
+                <option value="session1">스피킹 - 2025년 2회</option>
+                <option value="session2">스피킹 - 2025년 2회-1</option>
+            </select>
+        </div>
         <div class="nav-links" id="navLinks">
             <div class="nav-link active" onclick="goToStep(0)">音読</div>
             <div class="nav-link" onclick="goToStep(1)">No. 1</div>
@@ -286,7 +313,7 @@
             <div class="section-title" id="leftSectionTitle">音読</div>
             <div class="content-box" id="leftContent">
                 <div class="card-image-wrapper">
-                    <img src="202502.jpg" alt="문제 카드 이미지">
+                    <img id="cardImage" src="202502.png" alt="문제 카드 이미지">
                 </div>
             </div>
         </div>
@@ -330,51 +357,108 @@
     let timerInterval = null;
     let timeLeft = 0;
     let currentVolume = 0.8;
+    let currentSession = 'session1'; // 기본값: 2025년 2회
 
-    const steps = [
-        {
-            title: "音読",
-            type: "image",
-            instruction: "Please read the passage silently for 20 seconds.",
-            timer: 20
+    // 회차별 데이터 정의 (이미지 파일명 변경 반영)
+    const examData = {
+        session1: {
+            image: "202502.png",
+            steps: [
+                {
+                    title: "音読",
+                    type: "image",
+                    instruction: "Please read the passage silently for 20 seconds.",
+                    timer: 20
+                },
+                {
+                    title: "No. 1",
+                    type: "image", 
+                    instruction: "According to the passage, how will passengers travel faster and quieter than in the past?",
+                    timer: 40
+                },
+                {
+                    title: "No. 2 (黙読)",
+                    type: "image",
+                    instruction: "Now, please look at the picture and describe the situation. You have 20 seconds to prepare. Your story should begin with the sentence on the card.",
+                    timer: 20
+                },
+                {
+                    title: "No. 2 (スピーチ)",
+                    type: "image",
+                    instruction: "Please begin.",
+                    timer: 60
+                },
+                {
+                    title: "No. 3",
+                    type: "blank", 
+                    interstitialText: "Now, Mr. / Ms. ――, please turn over the card and put it down.",
+                    instruction: "Some people say that trains are a better way to travel than airplanes. What do you think about that?",
+                    timer: 35
+                },
+                {
+                    title: "No. 4",
+                    type: "blank", 
+                    instruction: "Today, many movies have violent scenes. Do you think people should stop making these movies?",
+                    hasChoices: true,
+                    timer: 35
+                }
+            ]
         },
-        {
-            title: "No. 1",
-            type: "image", 
-            instruction: "According to the passage, how will passengers travel faster and quieter than in the past?",
-            timer: 40
-        },
-        {
-            title: "No. 2 (黙読)",
-            type: "image",
-            instruction: "Now, please look at the picture and describe the situation. You have 20 seconds to prepare. Your story should begin with the sentence on the card.",
-            timer: 20
-        },
-        {
-            title: "No. 2 (スピーチ)",
-            type: "image",
-            instruction: "Please begin.",
-            timer: 60
-        },
-        {
-            title: "No. 3",
-            type: "blank", 
-            interstitialText: "Now, Mr. / Ms. ――, please turn over the card and put it down.",
-            instruction: "Some people say that trains are a better way to travel than airplanes. What do you think about that?",
-            timer: 35
-        },
-        {
-            title: "No. 4",
-            type: "blank", 
-            instruction: "Today, many movies have violent scenes. Do you think people should stop making these movies?",
-            hasChoices: true,
-            timer: 35
+        session2: {
+            image: "202502-1.png",
+            steps: [
+                {
+                    title: "音読",
+                    type: "image",
+                    instruction: "Please read the passage silently for 20 seconds.",
+                    timer: 20
+                },
+                {
+                    title: "No. 1",
+                    type: "image", 
+                    instruction: "According to the passage, how can some consumers help protect the environment?",
+                    timer: 40
+                },
+                {
+                    title: "No. 2 (黙読)",
+                    type: "image",
+                    instruction: "Now, please look at the picture and describe the situation. You have 20 seconds to prepare. Your story should begin with the sentence on the card.",
+                    timer: 20
+                },
+                {
+                    title: "No. 2 (スピーチ)",
+                    type: "image",
+                    instruction: "Please begin.",
+                    timer: 60
+                },
+                {
+                    title: "No. 3",
+                    type: "blank", 
+                    interstitialText: "Now, Mr. / Ms. ――, please turn over the card and put it down.",
+                    instruction: "Some people say that the government should do something to increase the number of young farmers in Japan. What do you think about that?",
+                    timer: 35
+                },
+                {
+                    title: "No. 4",
+                    type: "blank", 
+                    instruction: "Today, some cities ask people to use buses and trains instead of cars. Do you think more cities will do this in the future?",
+                    hasChoices: true,
+                    timer: 35
+                }
+            ]
         }
-    ];
+    };
 
     function updateVolume() {
         const slider = document.getElementById('volumeSlider');
         currentVolume = slider.value / 100;
+    }
+
+    function changeExamSession() {
+        const select = document.getElementById('examSelect');
+        currentSession = select.value;
+        currentStep = 0;
+        renderStep();
     }
 
     function renderStep() {
@@ -390,7 +474,8 @@
             }
         });
 
-        const step = steps[currentStep];
+        const session = examData[currentSession];
+        const step = session.steps[currentStep];
         document.getElementById('leftSectionTitle').innerText = step.title;
 
         const leftContent = document.getElementById('leftContent');
@@ -398,7 +483,7 @@
         if (step.type === 'image') {
             leftContent.innerHTML = `
                 <div class="card-image-wrapper">
-                    <img src="202502.jpg" alt="문제 카드 이미지">
+                    <img src="${session.image}" alt="문제 카드 이미지">
                 </div>
             `;
         } else if (step.type === 'blank') {
@@ -432,7 +517,7 @@
         }
 
         document.getElementById('beforeBtn').disabled = (currentStep === 0);
-        document.getElementById('nextBtn').innerText = (currentStep === steps.length - 1) ? "終了する >" : "次へ >";
+        document.getElementById('nextBtn').innerText = (currentStep === session.steps.length - 1) ? "終了する >" : "次へ >";
 
         if (step.interstitialText) {
             speakText(step.interstitialText, () => {
@@ -498,7 +583,8 @@
     }
 
     function nextStep() {
-        if (currentStep < steps.length - 1) {
+        const session = examData[currentSession];
+        if (currentStep < session.steps.length - 1) {
             currentStep++;
             renderStep();
         } else {
