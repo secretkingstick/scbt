@@ -289,8 +289,12 @@
     <header>
         <div class="header-left">
             <select class="exam-select" id="examSelect" onchange="changeExamSession()">
-                <option value="session1">スピーキング - 2025年 2회</option>
-                <option value="session2">スピーキング - 2025年 2회-1</option>
+                <option value="session6">스피킹 - 2024년 3회 (B일정)</option>
+                <option value="session5">스피킹 - 2024년 3회 (A일정)</option>
+                <option value="session4">스피킹 - 2025년 1회 (B일정)</option>
+                <option value="session3">스피킹 - 2025년 1회 (A일정)</option>
+                <option value="session1">스피킹 - 2025년 2회 (A일정)</option>
+                <option value="session2">스피킹 - 2025년 2회-1 (B일정)</option>
             </select>
         </div>
         <div class="nav-links" id="navLinks">
@@ -310,7 +314,7 @@
             <div class="section-title" id="leftSectionTitle">音読</div>
             <div class="content-box" id="leftContent">
                 <div class="card-image-wrapper">
-                    <img id="cardImage" src="202502.png" alt="문제 카드 이미지">
+                    <img id="cardImage" src="" alt="문제 카드 이미지">
                 </div>
             </div>
         </div>
@@ -354,9 +358,249 @@
     let timerInterval = null;
     let timeLeft = 0;
     let currentVolume = 0.8;
-    let currentSession = 'session1';
+    let currentSession = 'session6'; // 기본값을 2024년 3회 B일정으로 설정
 
     const examData = {
+        session6: {
+            image: "スクリーンショット 2026-09-16 22.54.36.jpg",
+            steps: [
+                {
+                    title: "音読",
+                    type: "image",
+                    instruction: "Please read the passage silently for 20 seconds.",
+                    timer: 20
+                },
+                {
+                    title: "No. 1",
+                    type: "image", 
+                    instruction: "According to the passage, how do some governments try to keep their citizens more prepared?",
+                    timer: 40
+                },
+                {
+                    title: "No. 2 (黙読)",
+                    type: "image",
+                    instruction: "Now, please look at the picture and describe the situation. You have 20 seconds to prepare. Your story should begin with the sentence on the card.",
+                    timer: 20
+                },
+                {
+                    title: "No. 2 (スピーチ)",
+                    type: "image",
+                    instruction: "Please begin.",
+                    timer: 60
+                },
+                {
+                    title: "No. 3",
+                    type: "blank", 
+                    interstitialText: "Now, Mr. / Ms. ――, please turn over the card and put it down.",
+                    instruction: "Nowadays, some people say that people today spend too much money on health supplements such as vitamins. What do you think about that?",
+                    timer: 35
+                },
+                {
+                    title: "No. 4",
+                    type: "blank", 
+                    instruction: "Today in Japan, many people enjoy eating food from foreign countries. Do you think foreign food will become even more popular?",
+                    hasChoices: true,
+                    timer: 35
+                }
+            ],
+            answersHtml: `
+                <h2 style="margin-bottom: 15px; color: #2b8a3e;">2024년 제3회 B일정 (Global Warming and Health) 解答・解説まとめ</h2>
+                <div style="line-height: 1.6; font-size: 20px;">
+                    <p><strong>【No. 1 パッセージについての質問】</strong></p>
+                    <p style="margin-bottom: 10px; color: #555;">質問: According to the passage, how do some governments try to keep their citizens more prepared?</p>
+                    <p><strong>解答例:</strong> (By) giving people information about such diseases.</p>
+                    <p style="color: #666; margin-bottom: 15px;"><strong>解説:</strong> パッセージの "Some governments give people information about such diseases, and in this way they try to keep their citizens more prepared." から直接導き出します。</p>
+
+                    <p><strong>【No. 2 イラストの展開説明】</strong></p>
+                    <p style="margin-bottom: 10px; color: #555;">条件: 指定された文（One day, Ryo and Saki were talking about doing volunteer activities.）から始める。</p>
+                    <p><strong>解答例:</strong><br>
+                    One day, Ryo and Saki were talking about doing volunteer activities. The next day at the kindergarten, Ryo was excited to help children. Later, on the way to the kindergarten in the train, they were reading a book and holding bags. Later that day, they were talking with each other on the train ride home.</p>
+                    <p style="margin-bottom: 15px;"></p>
+
+                    <p><strong>【No. 3 自分の意見：健康サプリメントへの支出】</strong></p>
+                    <p style="margin-bottom: 10px; color: #555;">質問: Nowadays, some people say that people today spend too much money on health supplements such as vitamins. What do you think about that?</p>
+                    <p><strong>Agree の解答例:</strong> I agree. Many people rely too much on pills instead of eating a balanced, healthy diet, which is unnecessary and a waste of money.</p>
+                    <p style="margin-bottom: 10px;"><strong>Disagree の解答例:</strong> I disagree. Maintaining good health is crucial, especially with busy lifestyles. Supplements are an easy and efficient way to get essential nutrients.</p>
+                    <p style="margin-bottom: 15px;"></p>
+
+                    <p><strong>【No. 4 自分の意見：外国の食べ物の人気】</strong></p>
+                    <p style="margin-bottom: 10px; color: #555;">質問: Today in Japan, many people enjoy eating food from foreign countries. Do you think foreign food will become even more popular?</p>
+                    <p><strong>Yes の解答例:</strong> Yes. People can easily travel abroad or find authentic ingredients online, making foreign cuisines more accessible and appealing.</p>
+                    <p style="margin-bottom: 10px;"><strong>No の解答例:</strong> No. Japanese people generally value traditional local dishes, and many foreign restaurants eventually close down after initial trends fade.</p>
+                </div>
+            `
+        },
+        session5: {
+            image: "スクリーンショット 2026-09-16 22.54.25.jpg",
+            steps: [
+                {
+                    title: "音読",
+                    type: "image",
+                    instruction: "Please read the passage silently for 20 seconds.",
+                    timer: 20
+                },
+                {
+                    title: "No. 1",
+                    type: "image", 
+                    instruction: "According to the passage, how do some local governments try to deal with the problem of electronic waste?",
+                    timer: 40
+                },
+                {
+                    title: "No. 2 (黙読)",
+                    type: "image",
+                    instruction: "Now, please look at the picture and describe the situation. You have 20 seconds to prepare. Your story should begin with the sentence on the card.",
+                    timer: 20
+                },
+                {
+                    title: "No. 2 (スピーチ)",
+                    type: "image",
+                    instruction: "Please begin.",
+                    timer: 60
+                },
+                {
+                    title: "No. 3",
+                    type: "blank", 
+                    interstitialText: "Now, Mr. / Ms. ――, please turn over the card and put it down.",
+                    instruction: "Some people say that more families will use solar panels to produce electricity in the future. What do you think about that?",
+                    timer: 35
+                },
+                {
+                    title: "No. 4",
+                    type: "blank", 
+                    instruction: "In Japan, some high schools take their students on school trips to foreign countries. Do you think this is a good idea?",
+                    hasChoices: true,
+                    timer: 35
+                }
+            ],
+            answersHtml: `
+                <h2 style="margin-bottom: 15px; color: #2b8a3e;">2024년 제3회 A일정 (Electronic Waste) 解答・解説まとめ</h2>
+                <div style="line-height: 1.6; font-size: 20px;">
+                    <p><strong>【No. 1 パッセージについての質問】</strong></p>
+                    <p style="margin-bottom: 10px; color: #555;">質問: According to the passage, how do some local governments try to deal with the problem of electronic waste?</p>
+                    <p><strong>解答例:</strong> (By) working together with companies that can recycle electronic waste.</p>
+                    <p style="color: #666; margin-bottom: 15px;"><strong>解説:</strong> パッセージの "Some local governments work together with these companies, and by doing so they try to deal with the problem of electronic waste." から答えます。</p>
+
+                    <p><strong>【No. 2 イラストの展開説明】</strong></p>
+                    <p style="margin-bottom: 10px; color: #555;">条件: 指定された文（One weekend, Mr. and Mrs. Sato were talking in their living room.）から始める。</p>
+                    <p><strong>解答例:</strong><br>
+                    One weekend, Mr. and Mrs. Sato were talking in their living room. Later, they were drinking tea at a shop, and the wife was looking at a computer brochure while a man was saying "I'd like to have my own computer." The next month, they were buying a new computer at an electronics store. That evening at home, the husband was setting up the computer while the wife was watching.</p>
+                    <p style="margin-bottom: 15px;"></p>
+
+                    <p><strong>【No. 3 自分の意見：太陽光パネルの普及】</strong></p>
+                    <p style="margin-bottom: 10px; color: #555;">質問: Some people say that more families will use solar panels to produce electricity in the future. What do you think about that?</p>
+                    <p><strong>Agree の解答例:</strong> I agree. People are becoming more conscious of environmental issues and high electricity costs, so using clean energy at home will become standard.</p>
+                    <p style="margin-bottom: 10px;"><strong>Disagree の解答例:</strong> I disagree. Installing solar panels requires a large initial investment, and many houses do not receive enough sunlight depending on their location.</p>
+                    <p style="margin-bottom: 15px;"></p>
+
+                    <p><strong>【No. 4 自分の意見：高校の海外修学旅行】</strong></p>
+                    <p style="margin-bottom: 10px; color: #555;">質問: In Japan, some high schools take their students on school trips to foreign countries. Do you think this is a good idea?</p>
+                    <p><strong>Yes の解答例:</strong> Yes. Experiencing different cultures and speaking English abroad at a young age broadens students' perspectives and inspires them globally.</p>
+                    <p style="margin-bottom: 10px;"><strong>No の解答例:</strong> No. International school trips cost a lot of money, placing a heavy financial burden on many families, and safety concerns can be significant.</p>
+                </div>
+            `
+        },
+        session4: {
+            image: "スクリーンショット 2026-09-16 22.54.17.jpg",
+            steps: [
+                {
+                    title: "音読",
+                    type: "image",
+                    instruction: "Please read the passage silently for 20 seconds.",
+                    timer: 20
+                },
+                {
+                    title: "No. 1",
+                    type: "image", 
+                    instruction: "According to the passage, how do some areas try to control the number of deer?",
+                    timer: 40
+                },
+                {
+                    title: "No. 2 (黙読)",
+                    type: "image",
+                    instruction: "Now, please look at the picture and describe the situation. You have 20 seconds to prepare. Your story should begin with the sentence on the card.",
+                    timer: 20
+                },
+                {
+                    title: "No. 2 (スピーチ)",
+                    type: "image",
+                    instruction: "Please begin.",
+                    timer: 60
+                },
+                {
+                    title: "No. 3",
+                    type: "blank", 
+                    interstitialText: "Now, Mr. / Ms. ――, please turn over the card and put it down.",
+                    instruction: "Some people say that people should buy products that are good for the environment, even when they are expensive. What do you think about that?",
+                    timer: 35
+                },
+                {
+                    title: "No. 4",
+                    type: "blank", 
+                    instruction: "Nowadays, many Japanese athletes are doing well in professional sports in foreign countries. Do you think the number of these athletes will increase in the future?",
+                    hasChoices: true,
+                    timer: 35
+                }
+            ],
+            answersHtml: `
+                <h2 style="margin-bottom: 15px; color: #2b8a3e;">2025년 제1회 B일정 (Living with Wildlife) 解答・解説まとめ</h2>
+                <div style="line-height: 1.6; font-size: 20px;">
+                    <p><strong>【No. 1 パッセージについての質問】</strong></p>
+                    <p style="margin-bottom: 10px; color: #555;">質問: According to the passage, how do some areas try to control the number of deer?</p>
+                    <p><strong>解答例:</strong> (By) using data from research about how wildlife lives in nature.</p>
+                </div>
+            `
+        },
+        session3: {
+            image: "202501.png",
+            steps: [
+                {
+                    title: "音読",
+                    type: "image",
+                    instruction: "Please read the passage silently for 20 seconds.",
+                    timer: 20
+                },
+                {
+                    title: "No. 1",
+                    type: "image", 
+                    instruction: "According to the passage, how do many businesses try to make their economic activities more efficient?",
+                    timer: 40
+                },
+                {
+                    title: "No. 2 (黙読)",
+                    type: "image",
+                    instruction: "Now, please look at the picture and describe the situation. You have 20 seconds to prepare. Your story should begin with the sentence on the card.",
+                    timer: 20
+                },
+                {
+                    title: "No. 2 (スピーチ)",
+                    type: "image",
+                    instruction: "Please begin.",
+                    timer: 60
+                },
+                {
+                    title: "No. 3",
+                    type: "blank", 
+                    interstitialText: "Now, Mr. / Ms. ――, please turn over the card and put it down.",
+                    instruction: "Some people say that, because of the Internet, people will stop buying newspapers in the future. What do you think about that?",
+                    timer: 35
+                },
+                {
+                    title: "No. 4",
+                    type: "blank", 
+                    instruction: "These days, organic vegetables are becoming popular. Do you think more people will buy organic vegetables in the future?",
+                    hasChoices: true,
+                    timer: 35
+                }
+            ],
+            answersHtml: `
+                <h2 style="margin-bottom: 15px; color: #2b8a3e;">2025년 제1회 A일정 解答・解説まとめ</h2>
+                <div style="line-height: 1.6; font-size: 20px;">
+                    <p><strong>【No. 1 パッセージについての質問】</strong></p>
+                    <p style="margin-bottom: 10px; color: #555;">質問: According to the passage, how do many businesses try to make their economic activities more efficient?</p>
+                    <p><strong>解答例:</strong> (By) introducing systems that use smartphones for payment.</p>
+                </div>
+            `
+        },
         session1: {
             image: "202502.png",
             steps: [
@@ -400,29 +644,11 @@
                 }
             ],
             answersHtml: `
-                <h2 style="margin-bottom: 15px; color: #2b8a3e;">2025年第2回 解答・解説まとめ</h2>
+                <h2 style="margin-bottom: 15px; color: #2b8a3e;">2025년 제2회 A일정 解答・解説まとめ</h2>
                 <div style="line-height: 1.6; font-size: 20px;">
                     <p><strong>【No. 1 パッセージについての質問】</strong></p>
                     <p style="margin-bottom: 10px; color: #555;">質問: According to the passage, how will passengers travel faster and quieter than in the past?</p>
                     <p><strong>解答例:</strong> (By) making use of trains that float on the tracks with powerful magnets.</p>
-                    <p style="color: #666; margin-bottom: 15px;"><strong>解説:</strong> パッセージの "Passengers will make use of such trains, and by doing so they will travel faster and quieter than in the past." と直前の "trains that float on the tracks with powerful magnets" を結びつけて答えます。</p>
-
-                    <p><strong>【No. 2 イラストの展開説明】</strong></p>
-                    <p style="margin-bottom: 10px; color: #555;">条件: 指定された文（One day, Mr. and Mrs. Sasaki were talking about their plans for Christmas.）から始める。</p>
-                    <p><strong>解答例:</strong><br>
-                    One day, Mr. and Mrs. Sasaki were talking about their plans for Christmas. That evening, they were looking at Christmas goods in a shop. A woman was buying a Christmas tree, and her husband was holding some boxes. A few days later, they went to see a Christmas festival. While they were walking at the festival, they saw a long line of people waiting to buy food. On the way home, Mr. and Mrs. Sasaki were talking about the festival happily.</p>
-                    <p style="margin-bottom: 15px;"></p>
-
-                    <p><strong>【No. 3 自分の意見：電車と飛行機】</strong></p>
-                    <p style="margin-bottom: 10px; color: #555;">質問: Some people say that trains are a better way to travel than airplanes. What do you think about that?</p>
-                    <p><strong>Agree の解答例:</strong> I agree. I think trains are more comfortable because we can walk around and enjoy the scenery outside. Also, we don't have to worry about bad weather as much as airplanes.</p>
-                    <p style="margin-bottom: 10px;"><strong>Disagree の解答例:</strong> I don't think so. Airplanes are much faster than trains, especially when traveling long distances or overseas. They save a lot of time.</p>
-                    <p style="margin-bottom: 15px;"></p>
-
-                    <p><strong>【No. 4 自分の意見：映画の暴力シーン】</strong></p>
-                    <p style="margin-bottom: 10px; color: #555;">質問: Today, many movies have violent scenes. Do you think people should stop making these movies?</p>
-                    <p><strong>Yes の解答例:</strong> Yes. I think violent scenes can have a bad influence on young people and children. Also, movies should be more enjoyable and peaceful for everyone.</p>
-                    <p style="margin-bottom: 10px;"><strong>No の解答例:</strong> No. I think violent scenes are often necessary for action movies to make them exciting and realistic. Also, adult viewers can choose what to watch based on age ratings.</p>
                 </div>
             `
         },
@@ -469,29 +695,11 @@
                 }
             ],
             answersHtml: `
-                <h2 style="margin-bottom: 15px; color: #2b8a3e;">2025年第2回B 解答・解説まとめ</h2>
+                <h2 style="margin-bottom: 15px; color: #2b8a3e;">2025년 제2회 B일정 解答・解説まとめ</h2>
                 <div style="line-height: 1.6; font-size: 20px;">
                     <p><strong>【No. 1 パッセージについての質問】</strong></p>
                     <p style="margin-bottom: 10px; color: #555;">質問: According to the passage, how can some consumers help protect the environment?</p>
                     <p><strong>解答例:</strong> (By) refusing to buy food from areas that are far away.</p>
-                    <p style="color: #666; margin-bottom: 15px;"><strong>解説:</strong> パッセージの "some consumers refuse to buy food from such areas, and by doing so they can help protect the environment." の部分から導き出します。「such areas」が指すのは、直前の「areas that are far away」です。</p>
-
-                    <p><strong>【No. 2 イラストの展開説明】</strong></p>
-                    <p style="margin-bottom: 10px; color: #555;">条件: 指定された文（One day, Mr. and Mrs. Smith were talking after dinner at home.）から始める。</p>
-                    <p><strong>解答例:</strong><br>
-                    One day, Mr. and Mrs. Smith were talking after dinner at home. The next day, they visited an apple farm. A woman was picking apples, and her husband was holding a bag. A few hours later, they were buying a lot of fresh apples at the farm shop. An hour later, they were putting their baggage into their car to go home.</p>
-                    <p style="margin-bottom: 15px;"></p>
-
-                    <p><strong>【No. 3 自分の意見：若手農業従事者】</strong></p>
-                    <p style="margin-bottom: 10px; color: #555;">質問: Some people say that the government should do something to increase the number of young farmers in Japan. What do you think about that?</p>
-                    <p><strong>Agree の解答例:</strong> I agree. Agriculture is very important for our food supply, but many farmers are getting older. The government should support young people so they can start farming easily.</p>
-                    <p style="margin-bottom: 10px;"><strong>Disagree の解答例:</strong> I don't think so. Farming should be a business driven by the private sector, not the government. Instead, private companies should create new technologies to make farming more efficient and attractive.</p>
-                    <p style="margin-bottom: 15px;"></p>
-
-                    <p><strong>【No. 4 自分の意見：公共交通機関の利用促進】</strong></p>
-                    <p style="margin-bottom: 10px; color: #555;">質問: Today, some cities ask people to use buses and trains instead of cars. Do you think more cities will do this in the future?</p>
-                    <p><strong>Yes の解答例:</strong> Yes. Environmental problems are becoming more serious, and public transportation produces less carbon dioxide than cars. Also, it helps reduce traffic jams in cities.</p>
-                    <p style="margin-bottom: 10px;"><strong>No の解答例:</strong> No. Many people, especially families with children or elderly people, prefer the convenience and comfort of driving their own cars, so it will be difficult to change their habits.</p>
                 </div>
             `
         }
@@ -516,7 +724,6 @@
         const session = examData[currentSession];
         const isResultPage = (currentStep === session.steps.length);
 
-        // 상단 네비게이션 활성화 처리
         const navLinks = document.querySelectorAll('.nav-link');
         navLinks.forEach((link, idx) => {
             if (idx === currentStep) {
@@ -530,7 +737,6 @@
         const rightPanel = document.getElementById('rightPanel');
 
         if (isResultPage) {
-            // 결과 페이지일 때 레이아웃 변경 (좌우 분할 대신 전체 화면으로 보기 좋게 표시)
             leftPanel.style.flex = "1";
             rightPanel.style.display = "none";
 
