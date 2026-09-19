@@ -138,6 +138,10 @@
                 <button class="exam-select-btn" onclick="startReading('2024-1')">2024年 第1回</button>
                 <button class="exam-select-btn" onclick="startReading('2024-2')">2024年 第2回</button>
                 <button class="exam-select-btn" onclick="startReading('2024-3')">2024年 第3回</button>
+                <button class="exam-select-btn" onclick="startReading('2025-1')">2025年 第1回</button>
+                <button class="exam-select-btn" onclick="startReading('2025-2')">2025年 第2回</button>
+                <button class="exam-select-btn" onclick="startReading('2025-3')">2025年 第3回</button>
+                <button class="exam-select-btn" onclick="startReading('2026-1')">2026年 第1回</button>
             </div>
         </div>
 
@@ -277,13 +281,15 @@
             document.getElementById('to-other-mode-btn').innerText = '🎧 リスニングへ切り替え';
 
             if (typeof initApp === 'function') {
-                initApp();
+                initApp(examKey);
             }
         }
 
         function toggleMode() {
             if (currentMode === 'listening') {
-                startReading(currentExamId || '2024-1');
+                // リーディングにデータが無い回はデフォルト(2025年第3回)にフォールバック
+                const key = (typeof readingData !== 'undefined' && readingData[currentExamId]) ? currentExamId : '2025-3';
+                startReading(key);
             } else {
                 startListening(currentExamId || '2024-1');
             }
