@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>시험 기록 (記録)</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 20px; background: #f4f4f9; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-top: 0; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        li:last-child { border-bottom: none; }
+        .btn { padding: 8px 14px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 15px; font-size: 14px; }
+        .btn-danger { background: #dc3545; float: right; }
+        .empty-msg { text-align: center; color: #777; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <a href="index.html" class="btn">← 홈으로 돌아가기</a>
+            <button onclick="clearLogs()" class="btn btn-danger">기록 전체 삭제</button>
+        </div>
+        
+        <h2>📋 시험 소요 시간 기록 (記録)</h2>
+        
+        <ul id="log-list">
+            <!-- 저장된 기록이 동적으로 표시됩니다 -->
+        </ul>
+    </div>
+
+    <script>
+        function loadLogs() {
+            const logList = document.getElementById('log-list');
+            const logs = JSON.parse(localStorage.getItem('examLogs')) || [];
+            
+            logList.innerHTML = '';
+            
+            if (logs.length === 0) {
+                logList.innerHTML = '<li class="empty-msg">저장된 시험 기록이 없습니다.</li>';
+                return;
+            }
+
+            logs.forEach((log, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span><strong>[#${index + 1}]</strong> <small style="color: #666;">${log.date}</small></span> 
+                    <span style="color: #007bff; font-weight: bold;">소요 시간: ${log.time}</span>
+                `;
+                logList.appendChild(li);
+            });
+        }
+
+        function clearLogs() {
+            if (confirm("모든 시험 기록을 삭제하시겠습니까?")) {
+                localStorage.removeItem('examLogs');
+                loadLogs();
+            }
+        }
+
+        // 페이지가 열릴 때 기록 불러오기 실행
+        window.onload = loadLogs;
+    </script>
+</body>
+</html>

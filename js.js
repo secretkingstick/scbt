@@ -1226,6 +1226,7 @@ function initApp(examKey) {
     createNavBar();
     initCanvasEvents();
     showQuestion(currentIndex);
+    startReadingTimer(currentReadingKey);
 }
 
 function createNavBar() {
@@ -1474,6 +1475,8 @@ function checkAllAnswers() {
         scoreDisplay.innerText = `採点完了！ 正解数: ${correctCount} / ${totalQuestionCount} 問`;
     }
 
+    logReadingSubmission();
+
     const checkBtn = document.getElementById("global-check-btn");
     if (checkBtn) {
         checkBtn.disabled = true;
@@ -1592,4 +1595,40 @@ function prevQuestion() {
     if (currentIndex > 0) {
         showQuestion(currentIndex - 1);
     }
+}
+
+let startTime = null; // 시험 시작 시간 (リーディング用タイマー)
+
+function startReadingTimer(examId) {
+    console.log("リーディング開始: " + examId);
+    startTime = new Date();
+}
+
+function logReadingSubmission() {
+    if (!startTime) {
+        console.warn("リーディングのタイマーが開始されていません。");
+        return;
+    }
+
+    const endTime = new Date();
+    const elapsedTimeSeconds = Math.floor((endTime - startTime) / 1000);
+    const minutes = Math.floor(elapsedTimeSeconds / 60);
+    const seconds = elapsedTimeSeconds % 60;
+    
+    const timeStr = `${minutes}분 ${seconds}초`;
+    const dateStr = new Date().toLocaleString(); // 제출 시각
+
+    // 1. 기존에 저장된 기록 불러오기 (없으면 빈 배열)
+    let logs = JSON.parse(localStorage.getItem('examLogs')) || [];
+    
+    // 2. 새 기록 추가
+    logs.push({
+        date: dateStr,
+        time: timeStr
+    });
+
+    // 3. 브라우저 저장소에 다시 저장
+    localStorage.setItem('examLogs', JSON.stringify(logs));
+
+    alert(`제출이 완료되었습니다!\n소요 시간: ${timeStr}`);
 }
