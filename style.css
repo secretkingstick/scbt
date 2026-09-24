@@ -483,7 +483,7 @@ header h1 {
 }
 
 /* 모바일 화면에서는 기존처럼 상하로 떨어지도록 반응형 처리 */
-@media (max-width: 1024px) {
+@media (max-width: 480px) {
     .split-layout {
         flex-direction: column;
     }
