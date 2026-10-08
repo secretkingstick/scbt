@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Listening Practice - SKZ Han Style Voice</title>
+  <style>
+    :root {
+      --primary: #111827;
+      --accent: #ef4444;
+      --accent-hover: #dc2626;
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --text-main: #f3f4f6;
+      --text-sub: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    h1 span {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.8rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    p.subtitle {
+      color: var(--text-sub);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      background: #1f293d;
+      border: 1px solid #374151;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.9rem;
+    }
+
+    .search-box {
+      margin-top: 16px;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: #1f293d;
+      border: 1px solid #374151;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+    }
+
+    .question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .question-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .question-card:hover {
+      border-color: #374151;
+      transform: translateY(-1px);
+    }
+
+    .question-card.playing {
+      border-color: var(--accent);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .q-info {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      flex: 1;
+    }
+
+    .q-num {
+      background: #1f293d;
+      color: #9ca3af;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      min-width: 42px;
+      text-align: center;
+    }
+
+    .q-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #f9fafb;
+    }
+
+    .play-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .play-btn:hover {
+      background: var(--accent-hover);
+      transform: scale(1.05);
+    }
+
+    .play-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    /* Custom Sub-questions */
+    .sub-list {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-left: 10px;
+      border-left: 2px solid #374151;
+    }
+
+    .sub-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+
+    .sub-text {
+      font-size: 0.95rem;
+      color: #d1d5db;
+    }
+
+    .sub-btn {
+      background: #374151;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sub-btn:hover {
+      background: var(--accent);
+    }
+
+    .sub-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>English Listening Player <span>Han Style</span></h1>
+      <p class="subtitle">リスニング問題全86問（ハン風クール＆ハイテンポ音声パラメータ適用）</p>
+
+      <div class="controls-grid">
+        <div class="control-group">
+          <label for="voiceSelect">音声モデル (Voice)</label>
+          <select id="voiceSelect"></select>
+        </div>
+        <div class="control-group">
+          <label for="rate">話す速度 (Speed): <span id="rateVal">1.10</span>x</label>
+          <input type="range" id="rate" min="0.8" max="1.5" step="0.05" value="1.1">
+        </div>
+        <div class="control-group">
+          <label for="pitch">ピッチ (Pitch): <span id="pitchVal">1.18</span></label>
+          <input type="range" id="pitch" min="0.8" max="1.5" step="0.02" value="1.18">
+        </div>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="質問文を検索 (例: Eiken, Kyoto, hotel)...">
+      </div>
+    </header>
+
+    <div class="question-list" id="questionList"></div>
+  </div>
+
+  <script>
+    const rawQuestions = [
+      "Are you going to study English today?",
+      "Are you going to take the Eiken this year?",
+      "Did you go to the beach last month?",
+      "Did you go to a new place last month?",
+      "Did you watch an animated movie last month?",
+      "Do you enjoy making small talk with strangers?",
+      "Do you ever talk to the concierge at hotels?",
+      "Do you ever use the minibar in your hotel room?",
+      "Do you have any extra paper in your bookbag?",
+      "Do you have any scissors in your pencil case?",
+      "Do you have some snacks in your bag?",
+      "Do you need lots of hangers when you travel?",
+      "Do you prefer a hotel with a pool? Why or why not?",
+      "Do you prefer a gift shop or a fitness center at a hotel?",
+      "Do you prefer a pool or a sauna at hotels?",
+      "Do you prefer a comb or a brush for your hair?",
+      "Do you use a fitness center when you travel?",
+      "Has your family used a sauna in a hotel?",
+      "Have you ever used skirt hangers? Do you need them?",
+      "Have you ever been to a bed and breakfast?",
+      "Have you ever stayed at a resort hotel?",
+      "Have you ever been to Kyoto?",
+      "Have you ever stayed at a bed and breakfast?",
+      "Have you ever had a manicure?",
+      "Have you ever had a pedicure?",
+      "Have you ever read the fine print when signing up for a website?",
+      "Have you ever worked out in the fitness center in a hotel?",
+      "Have you got any hand lotion in your bag?",
+      "How many people are in your family?",
+      "How many times have you stayed at a Japanese-style inn?",
+      "How much homework do you have to do tonight?",
+      "How often do you go abroad on vacation?",
+      "How often do you wear a bathrobe?",
+      "How often do you use a hair dryer?",
+      "If you forget your homework, what will you do?",
+      "Is a minibar important for you?",
+      "Is a hair dryer necessary for you?",
+      "Is shampoo countable or uncountable?",
+      "Is our teacher going to give us free money right now?",
+      "Tell me about a downside of going to school at Hiroo Gakuen.",
+      "Tell me about a downside of living in Tokyo.",
+      "Tell me about your dream vacation destination.",
+      "Tell me about a fee your parents sometimes pay.",
+      "Tell me about a time you took the plunge for something.",
+      "What amenities do short-term vacation rentals have?",
+      "What are the best amenities in hotels?",
+      "What do you think is the most important thing in a hotel room?",
+      "What is the most common hotel facility?",
+      "What is your favorite hotel amenity?",
+      "What is your favorite facility?",
+      "What is something you think every hotel room should have? Why?",
+      "What's your least favorite kind of accommodation when you travel?",
+      "What's something that \"costs an arm and a leg\"?",
+      {
+        title: "What's the difference between...",
+        items: [
+          "a bed and breakfast and a short-term vacation rental?",
+          "a suite and a double room in hotels?",
+          "a yukata and a bathrobe?",
+          "a rollaway bed and sofa bed?",
+          "a fee and a bill?",
+          "a good point and a downside?",
+          "a king-sized bed and a queen-sized bed?",
+          "a bed and breakfast and a traditional Japanese-style inn?",
+          "fine print and fee?",
+          "shampoo and conditioner?"
+        ]
+      },
+      "What kind of facilities do hotels have?",
+      "What will happen if I forget my homework?",
+      "What will happen if you skip school?",
+      "What will happen if you only eat carrots?",
+      "What will happen if aliens come to Earth?",
+      "What will you do if you move to Taiwan tomorrow?",
+      "What will you do if you become famous?",
+      "What will you do if you become a cat?",
+      "What will you do if you win the ¥1,000,000 lottery?",
+      "What will you do if you become the Japanese Prime Minister?",
+      "When will English class end?",
+      "When will you do your homework tonight?",
+      "When will you eat dinner tonight?",
+      "When will we take our speaking test?",
+      "Where are you going to go this weekend?",
+      "Where do you like to go during summer vacation?",
+      "Where is your favorite vacation destination?",
+      "Where will you live when you are an adult?",
+      "Which class will we have next?",
+      "Which hotel facility do you go to the most?",
+      "Which kind of accommodation is the most expensive?",
+      "Which subject are you going to study tonight?",
+      "Which type of accommodation is the most popular in Japan?",
+      "Which university will you go to after high school?",
+      "Who will be our class president next year?",
+      "Who will be our homeroom teacher next year?",
+      "Who will get a perfect score on the English exam?",
+      "Who will give us the speaking tests?",
+      "Why might someone use a business center during a trip?",
+      "Will you have curry for dinner tonight?",
+      "Would you like extra towels in your room?",
+      "Would you like to go to Hawaii?"
+    ];
+
+    let voices = [];
+    const voiceSelect = document.getElementById('voiceSelect');
+    const rateInput = document.getElementById('rate');
+    const pitchInput = document.getElementById('pitch');
+    const rateVal = document.getElementById('rateVal');
+    const pitchVal = document.getElementById('pitchVal');
+    const questionList = document.getElementById('questionList');
+    const searchInput = document.getElementById('searchInput');
+
+    let currentUtterance = null;
+    let activeCard = null;
+
+    function populateVoices() {
+      voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+      voiceSelect.innerHTML = '';
+
+      if (voices.length === 0) {
+        const option = document.createElement('option');
+        option.textContent = 'Standard English Voice';
+        voiceSelect.appendChild(option);
+        return;
+      }
+
+      let selectedIndex = 0;
+      voices.forEach((voice, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        
+        // Prefer male voices for Han-like vibe
+        const name = voice.name.toLowerCase();
+        if (name.includes('david') || name.includes('alex') || name.includes('male') || name.includes('george') || name.includes('natural')) {
+          selectedIndex = index;
+        }
+
+        voiceSelect.appendChild(option);
+      });
+
+      voiceSelect.selectedIndex = selectedIndex;
+    }
+
+    populateVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    rateInput.addEventListener('input', () => rateVal.textContent = parseFloat(rateInput.value).toFixed(2));
+    pitchInput.addEventListener('input', () => pitchVal.textContent = parseFloat(pitchInput.value).toFixed(2));
+
+    function speakText(text, cardEl) {
+      speechSynthesis.cancel();
+
+      if (activeCard) activeCard.classList.remove('playing');
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = parseFloat(rateInput.value);
+      utterance.pitch = parseFloat(pitchInput.value);
+
+      if (voices[voiceSelect.value]) {
+        utterance.voice = voices[voiceSelect.value];
+      }
+
+      utterance.onstart = () => {
+        if (cardEl) {
+          cardEl.classList.add('playing');
+          activeCard = cardEl;
+        }
+      };
+
+      utterance.onend = () => {
+        if (cardEl) cardEl.classList.remove('playing');
+        activeCard = null;
+      };
+
+      utterance.onerror = () => {
+        if (cardEl) cardEl.classList.remove('playing');
+        activeCard = null;
+      };
+
+      speechSynthesis.speak(utterance);
+    }
+
+    function renderQuestions(filter = '') {
+      questionList.innerHTML = '';
+      let qNum = 1;
+
+      rawQuestions.forEach((q) => {
+        if (typeof q === 'string') {
+          if (filter && !q.toLowerCase().includes(filter.toLowerCase())) return;
+
+          const card = document.createElement('div');
+          card.className = 'question-card';
+          card.innerHTML = `
+            <div class="q-info">
+              <span class="q-num">${qNum}</span>
+              <span class="q-text">${q}</span>
+            </div>
+            <button class="play-btn" title="再生">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          `;
+
+          card.querySelector('.play-btn').addEventListener('click', () => speakText(q, card));
+          questionList.appendChild(card);
+        } else {
+          // Nested object (Question 54)
+          const card = document.createElement('div');
+          card.className = 'question-card';
+          card.style.flexDirection = 'column';
+          card.style.alignItems = 'stretch';
+
+          let subItemsHtml = '';
+          q.items.forEach(item => {
+            if (!filter || item.toLowerCase().includes(filter.toLowerCase()) || q.title.toLowerCase().includes(filter.toLowerCase())) {
+              subItemsHtml += `
+                <div class="sub-item">
+                  <span class="sub-text">${item}</span>
+                  <button class="sub-btn" data-text="${q.title} ${item}">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  </button>
+                </div>
+              `;
+            }
+          });
+
+          if (subItemsHtml !== '') {
+            card.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="q-info">
+                  <span class="q-num">${qNum}</span>
+                  <span class="q-text">${q.title}</span>
+                </div>
+                <button class="play-btn" title="タイトルのみ再生">
+                  <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+              </div>
+              <div class="sub-list">${subItemsHtml}</div>
+            `;
+
+            card.querySelector('.play-btn').addEventListener('click', () => speakText(q.title, card));
+            card.querySelectorAll('.sub-btn').forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                speakText(btn.getAttribute('data-text'), card);
+              });
+            });
+
+            questionList.appendChild(card);
+          }
+        }
+        qNum++;
+      });
+    }
+
+    searchInput.addEventListener('input', (e) => renderQuestions(e.target.value));
+
+    renderQuestions();
+  </script>
+</body>
+</html>
