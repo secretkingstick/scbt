@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speaking Test Practice - Blind Mode</title>
+  <style>
+    :root {
+      --primary: #1e293b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); padding: 20px; line-height: 1.5; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+    h1 { font-size: 1.6rem; margin-bottom: 8px; }
+    p.subtitle { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 20px; }
+    .controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; }
+    .control-group { display: flex; flex-direction: column; gap: 6px; }
+    .control-group label { font-size: 0.8rem; color: var(--text-sub); }
+    select, input[type="range"] { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 8px; border-radius: 8px; }
+    
+    .global-btn-group { display: flex; gap: 10px; margin-top: 16px; }
+    .action-btn { background: #334155; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+    .action-btn:hover { background: #475569; }
+
+    .question-list { display: flex; flex-direction: column; gap: 16px; }
+    .qa-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; }
+    .qa-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .q-num { background: #334155; color: #94a3b8; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; }
+    
+    .section-box { background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .section-content { flex: 1; }
+
+    /* 文字伏せ（マスク）用スタイル */
+    .blur-text {
+      background-color: #334155;
+      color: transparent !important;
+      user-select: none;
+      border-radius: 4px;
+      padding: 2px 6px;
+      cursor: pointer;
+      display: inline-block;
+      transition: all 0.2s ease;
+    }
+    .blur-text.revealed {
+      background-color: transparent;
+      color: inherit !important;
+      user-select: text;
+    }
+
+    .en-text { font-size: 1.05rem; font-weight: 600; color: #f8fafc; }
+    .ja-text { font-size: 0.9rem; color: #94a3b8; margin-top: 4px; display: block; }
+    
+    .play-btn { background: var(--accent); color: white; border: none; border-radius: 50%; width: 44px; height: 44px; min-width: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .play-btn:hover { background: var(--accent-hover); }
+    .play-btn svg { width: 20px; height: 20px; fill: currentColor; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Speaking Practice - Blind Mode</h1>
+      <p class="subtitle">再生ボタンで音声を聞き、確認したい時だけクリックして文字を表示できます。</p>
+      <div class="controls-grid">
+        <div class="control-group">
+          <label for="voiceSelect">音声モデル</label>
+          <select id="voiceSelect"></select>
+        </div>
+        <div class="control-group">
+          <label for="rate">話す速度: <span id="rateVal">1.00</span>x</label>
+          <input type="range" id="rate" min="0.7" max="1.4" step="0.05" value="1.0">
+        </div>
+      </div>
+      <div class="global-btn-group">
+        <button class="action-btn" onclick="toggleAllTexts(true)">すべての文字を表示</button>
+        <button class="action-btn" onclick="toggleAllTexts(false)">すべての文字を隠す</button>
+      </div>
+    </header>
+    <div class="question-list" id="questionList"></div>
+  </div>
+
+  <script>
+    const qaData = [
+      { q: "Are you going to study English today?", q_ja: "今日、英語を勉強する予定ですか？", a: "Yes, I am going to study English today. I have a test soon.", a_ja: "はい、今日英語を勉強する予定です。もうすぐテストがあります。" },
+      { q: "Are you going to take the Eiken this year?", q_ja: "今年、英検を受ける予定ですか？", a: "Yes, I am going to take Grade 2 this year. I am studying hard for it.", a_ja: "はい、今年英検2級を受ける予定です。そのために一生懸命勉強しています。" },
+      { q: "Did you go to the beach last month?", q_ja: "先月、海に行きましたか？", a: "No, I didn't go to the beach. I stayed at home and relaxed.", a_ja: "いいえ、海には行きませんでした。家にいてリラックスしていました。" },
+      { q: "Did you go to a new place last month?", q_ja: "先月、新しい場所に行きましたか？", a: "Yes, I went to a new cafe in Shinjuku. The coffee there was great.", a_ja: "はい、新宿の新しいカフェに行きました。そこのコーヒーはとても美味しかったです。" },
+      { q: "Did you watch an animated movie last month?", q_ja: "先月、アニメ映画を見ましたか？", a: "Yes, I watched a Studio Ghibli movie on TV. It was very moving.", a_ja: "はい、テレビでスタジオジブリの映画を見ました。とても感動的でした。" },
+      { q: "Do you enjoy making small talk with strangers?", q_ja: "知らない人と雑談をするのは楽しいですか？", a: "No, I don't really enjoy it. I am a bit shy with new people.", a_ja: "いいえ、あまり楽しくありません。初めての人には少し人見知りしてしまうので。" },
+      { q: "Do you ever talk to the concierge at hotels?", q_ja: "ホテルでコンシェルジュと話すことはありますか？", a: "Yes, I talk to them sometimes. I usually ask for restaurant recommendations.", a_ja: "はい、時々話します。たいていおすすめのレストランを尋ねます。" },
+      { q: "Do you ever use the minibar in your hotel room?", q_ja: "ホテルの部屋のミニバーを利用することはありますか？", a: "No, I never use the minibar. It is always too expensive.", a_ja: "いいえ、ミニバーは一度も使いません。いつも高すぎるからです。" },
+      { q: "Do you have any extra paper in your bookbag?", q_ja: "通学かばんの中に予備の紙は入っていますか？", a: "Yes, I have some extra paper in my bag. You can use a sheet if you need it.", a_ja: "はい、かばんに予備の紙が入っています。必要なら1枚使っていいですよ。" },
+      { q: "Do you have any scissors in your pencil case?", q_ja: "筆箱の中にハサミは入っていますか？", a: "Yes, I have small scissors in my pencil case. They are very useful.", a_ja: "はい、筆箱の中に小さなハサミが入っています。とても便利です。" },
+      { q: "Do you have some snacks in your bag?", q_ja: "かばんの中にお菓子は入っていますか？", a: "Yes, I have some chocolate in my bag. I like to eat it during breaks.", a_ja: "はい、かばんにチョコレートが入っています。休み時間に食べるのが好きです。" },
+      { q: "Do you need lots of hangers when you travel?", q_ja: "旅行するとき、ハンガーはたくさん必要ですか？", a: "No, I don't need many hangers. Two or three hangers are enough for me.", a_ja: "いいえ、ハンガーはたくさん要りません。2〜3個あれば十分です。" },
+      { q: "Do you prefer a hotel with a pool? Why or why not?", q_ja: "プール付きのホテルの方が好きですか？その理由は何ですか？", a: "Yes, I prefer hotels with a pool. I love swimming on vacation.", a_ja: "はい、プール付きのホテルの方が好きです。休暇中に泳ぐのが大好きだからです。" },
+      { q: "Do you prefer a gift shop or a fitness center at a hotel?", q_ja: "ホテルの施設として、ギフトショップとフィットネスセンターのどちらが好きですか？", a: "I prefer a gift shop at a hotel. I like looking for local souvenirs.", a_ja: "ホテルのギフトショップの方が好きです。地元のお土産を探すのが好きだからです。" },
+      { q: "Do you prefer a pool or a sauna at hotels?", q_ja: "ホテルでは、プールとサウナのどちらが好きですか？", a: "I prefer a pool over a sauna. Swimming is relaxing and fun.", a_ja: "サウナよりプールの方が好きです。泳ぐことはリラックスできて楽しいです。" },
+      { q: "Do you prefer a comb or a brush for your hair?", q_ja: "髪をとかす時、くしとヘアブラシのどちらが好きですか？", a: "I prefer a brush for my hair. It is easier to style my hair with it.", a_ja: "髪にはヘアブラシの方が好きです。その方が髪をセットしやすいからです。" },
+      { q: "Do you use a fitness center when you travel?", q_ja: "旅行中、フィットネスセンターを利用しますか？", a: "No, I don't use fitness centers on trips. I usually walk around the city instead.", a_ja: "いいえ、旅行中にフィットネスセンターは使いません。代わりにたいてい街を歩き回ります。" },
+      { q: "Has your family used a sauna in a hotel?", q_ja: "あなたの家族はホテルのサウナを利用したことがありますか？", a: "Yes, my father has used a hotel sauna. He says it helps him relax.", a_ja: "はい、父がホテルのサウナを利用したことがあります。リラックスできると言っています。" },
+      { q: "Have you ever used skirt hangers? Do you need them?", q_ja: "スカート用ハンガーを使ったことがありますか？", a: "Yes, I have used skirt hangers before. I need them to hang my skirts neatly.", a_ja: "はい、以前スカート用ハンガーを使ったことがあります。スカートをきれいに掛けるために必要です。" },
+      { q: "Have you ever been to a bed and breakfast?", q_ja: "B&Bに行ったことがありますか？", a: "No, I have never been to a bed and breakfast. However, I would like to try it someday.", a_ja: "いいえ、B&Bには行ったことがありません。ですが、いつか行ってみたいです。" },
+      { q: "Have you ever stayed at a resort hotel?", q_ja: "リゾートホテルに泊まったことがありますか？", a: "Yes, I have stayed at a resort hotel before. The view from the room was amazing.", a_ja: "はい、以前リゾートホテルに泊まったことがあります。部屋からの眺めが素晴らしかったです。" },
+      { q: "Have you ever been to Kyoto?", q_ja: "京都に行ったことがありますか？", a: "Yes, I have been to Kyoto twice. I visited many famous temples there.", a_ja: "はい、京都に2回行ったことがあります。そこでたくさんの有名なお寺を訪れました。" },
+      { q: "Have you ever stayed at a bed and breakfast?", q_ja: "B&Bに泊まったことがありますか？", a: "No, I have never stayed at a bed and breakfast. I usually stay at modern hotels.", a_ja: "いいえ、B&Bに泊まったことはありません。たいてい近代的なホテルに泊まります。" },
+      { q: "Have you ever had a manicure?", q_ja: "マニキュアをしたことがありますか？", a: "No, I have never had a manicure. I usually keep my nails plain.", a_ja: "いいえ、マニキュアをしたことはありません。普段は爪に何もしていません。" },
+      { q: "Have you ever had a pedicure?", q_ja: "ペディキュアをしたことがありますか？", a: "No, I have never had a pedicure. I might try it in the summer.", a_ja: "いいえ、ペディキュアをしたことはありません。夏に試してみるかもしれません。" },
+      { q: "Have you ever read the fine print when signing up for a website?", q_ja: "ウェブサイトに登録する際、細かい利用規約を読んだことがありますか？", a: "No, I usually skip the fine print. It is always too long to read.", a_ja: "いいえ、たいてい細かい規約は読み飛ばします。長すぎて読めないからです。" },
+      { q: "Have you ever worked out in the fitness center in a hotel?", q_ja: "ホテルのフィットネスセンターでトレーニングをしたことがありますか？", a: "No, I have never worked out in a hotel gym. I prefer sightseeing outside.", a_ja: "いいえ、ホテルのジムで運動したことはありません。外で観光する方が好きです。" },
+      { q: "Have you got any hand lotion in your bag?", q_ja: "かばんにハンドローションは入っていますか？", a: "Yes, I always keep hand lotion in my bag. My hands get dry easily.", a_ja: "はい、いつもかばんにハンドクリームを入れています。手が乾燥しやすいからです。" },
+      { q: "How many people are in your family?", q_ja: "あなたの家族は何人家族ですか？", a: "There are four people in my family. I live with my parents and brother.", a_ja: "私の家族は4人家族です。両親と兄弟と一緒に住んでいます。" },
+      { q: "How many times have you stayed at a Japanese-style inn?", q_ja: "旅館に何回泊まったことがありますか？", a: "I have stayed at a Japanese-style inn three times. I love the traditional atmosphere.", a_ja: "旅館には3回泊まったことがあります。伝統的な雰囲気が大好きです。" },
+      { q: "How much homework do you have to do tonight?", q_ja: "今夜やらなければならない宿題はどのくらいありますか？", a: "I have a lot of homework to do tonight. It will take two hours.", a_ja: "今夜はやるべき宿題がたくさんあります。2時間くらいかかるでしょう。" },
+      { q: "How often do you go abroad on vacation?", q_ja: "休暇で海外に行く頻度はどのくらいですか？", a: "I go abroad once every two years. I love visiting new countries.", a_ja: "2年に1回くらい海外に行きます。新しい国を訪れるのが大好きです。" },
+      { q: "How often do you wear a bathrobe?", q_ja: "バスローブを着る頻度はどのくらいですか？", a: "I rarely wear a bathrobe at home. I only wear one at hotels.", a_ja: "家ではめったにバスローブを着ません。ホテルに泊まるときだけ着ます。" },
+      { q: "How often do you use a hair dryer?", q_ja: "ヘアドライヤーを使う頻度はどのくらいですか？", a: "I use a hair dryer every night. It is important to dry my hair before sleeping.", a_ja: "毎晩ヘアドライヤーを使います。寝る前に髪を乾かすことが大切だからです。" },
+      { q: "If you forget your homework, what will you do?", q_ja: "もし宿題を忘れたら、どうしますか？", a: "I will apologize to my teacher immediately. Then, I will hand it in tomorrow.", a_ja: "すぐに先生に謝ります。そして、明日提出します。" },
+      { q: "Is a minibar important for you?", q_ja: "あなたにとってミニバーは重要ですか？", a: "No, a minibar is not important for me. I usually buy drinks at convenience stores.", a_ja: "いいえ、私にとってミニバーは重要ではありません。たいていコンビニで飲み物を買います。" },
+      { q: "Is a hair dryer necessary for you?", q_ja: "あなたにとってヘアドライヤーは必要ですか？", a: "Yes, a hair dryer is very necessary for me. I cannot sleep with wet hair.", a_ja: "はい、私にとってヘアドライヤーはとても必要です。濡れた髪のままでは寝られません。" },
+      { q: "Is shampoo countable or uncountable?", q_ja: "シャンプーは可算名詞ですか、不可算名詞ですか？", a: "Shampoo is an uncountable noun. On the other hand, a comb is countable.", a_ja: "シャンプーは不可算名詞です。一方で、くしは可算名詞です。" },
+      { q: "Is our teacher going to give us free money right now?", q_ja: "私たちの先生は今すぐ私達にお金をタダでくれるでしょうか？", a: "No, of course that will not happen! Our teacher is not rich.", a_ja: "いいえ、もちろんそんなわけありません！私たちの先生はお金持ちではありません。" },
+      { q: "Tell me about a downside of going to school at Hiroo Gakuen.", q_ja: "広尾学園に通うことのデメリットを教えてください。", a: "A downside is that we get a lot of homework. It keeps us very busy.", a_ja: "デメリットは、宿題がたくさん出ることです。とても忙しくなります。" },
+      { q: "Tell me about a downside of living in Tokyo.", q_ja: "東京に住むことのデメリットを教えてください。", a: "A downside is that the trains are always crowded. It can be exhausting.", a_ja: "デメリットは、電車がいつも混んでいることです。疲れることがあります。" },
+      { q: "Tell me about your dream vacation destination.", q_ja: "理想の旅行先について教えてください。", a: "My dream vacation destination is Hawaii. I want to relax on the warm beach.", a_ja: "夢の旅行先はハワイです。暖かいビーチでリラックスしたいです。" },
+      { q: "Tell me about a fee your parents sometimes pay.", q_ja: "あなたの両親が時々支払っている費用について教えてください。", a: "My parents pay a monthly internet fee. It allows us to use Wi-Fi at home.", a_ja: "両親は毎月インターネット料金を払っています。それにより家でWi-Fiが使えます。" },
+      { q: "Tell me about a time you took the plunge for something.", q_ja: "何かに対して「思い切って一歩を踏み出した」時のことについて教えてください。", a: "I took the plunge when I joined the basketball team. It was a big decision for me.", a_ja: "バスケットボール部に入ったとき、思い切って飛び込みました。私にとって大きな決断でした。" },
+      { q: "What amenities do short-term vacation rentals have?", q_ja: "民泊にはどんなアメニティがありますか？", a: "They usually have a kitchen and a washing machine. Some also provide free Wi-Fi.", a_ja: "たいていキッチンと洗濯機が付いています。無料Wi-Fiを提供しているところもあります。" },
+      { q: "What are the best amenities in hotels?", q_ja: "ホテルにある最高のアメニティは何ですか？", a: "The best amenities are soft bathrobes. High-quality shampoo is also wonderful.", a_ja: "最高のアメニティは柔らかいバスローブです。質の高いシャンプーも素晴らしいです。" },
+      { q: "What do you think is the most important thing in a hotel room?", q_ja: "ホテルの部屋で一番重要なものは何だと思いますか？", a: "I think a comfortable bed is the most important thing. It helps you get good sleep.", a_ja: "快適なベッドが一番重要だと思います。良い睡眠をとるのに役立ちます。" },
+      { q: "What is the most common hotel facility?", q_ja: "最も一般的なホテルの設備は何ですか？", a: "The front desk is the most common hotel facility. Every hotel has one.", a_ja: "フロントデスクが最も一般的なホテル設備です。どのホテルにも必ずあります。" },
+      { q: "What is your favorite hotel amenity?", q_ja: "一番お気に入りのホテルアメニティは何ですか？", a: "My favorite amenity is free bottled water. It is very helpful after traveling.", a_ja: "一番のお気に入りは無料のペットボトルのお水です。移動の後にとても助かります。" },
+      { q: "What is your favorite facility?", q_ja: "一番お気に入りの施設は何ですか？", a: "My favorite facility is the swimming pool. I love playing in the water.", a_ja: "一番お気に入りの施設はスイミングプールです。水で遊ぶのが大好きです。" },
+      { q: "What is something you think every hotel room should have? Why?", q_ja: "すべてのホテルの部屋に備え付けるべきだと思うものは何ですか？その理由も教えてください。", a: "Every room should have a hair dryer. Going to bed with wet hair is uncomfortable.", a_ja: "どの部屋にもヘアドライヤーを置くべきです。濡れた髪のまま寝るのは気持ち悪いからです。" },
+      { q: "What's your least favorite kind of accommodation when you travel?", q_ja: "旅行する際、一番好きではない宿泊施設の種類は何ですか？", a: "My least favorite accommodation is a capsule hotel. The space is way too small for me.", a_ja: "一番好きではない宿泊施設はカプセルホテルです。私には空間が狭すぎます。" },
+      { q: "What's something that \"costs an arm and a leg\"?", q_ja: "「ものすごくお金がかかる」ものとは何ですか？", a: "Buying a luxury sports car costs an arm and a leg. Most people cannot afford it.", a_ja: "高級スポーツカーを買うのはものすごくお金がかかります。ほとんどの人には買えません。" },
+      { q: "What's the difference between a bed and breakfast and a short-term vacation rental?", q_ja: "「B&B」と「民泊」の違いは？", a: "A B&B includes breakfast for guests. On the other hand, vacation rentals rarely serve food.", a_ja: "B&Bにはゲストのための朝食が含まれます。一方で、バケーションレンタルはめったに食事を出しません。" },
+      { q: "What's the difference between a suite and a double room in hotels?", q_ja: "「スイートルーム」と「ダブルルーム」の違いは？", a: "A suite has multiple connected rooms. In contrast, a double room is just one bedroom.", a_ja: "スイートは複数の部屋がつながっています。対照的に、ダブルルームは1つの寝室だけです。" },
+      { q: "What's the difference between a yukata and a bathrobe?", q_ja: "「浴衣」と「バスローブ」の違いは？", a: "A yukata is a light cotton Japanese garment. A bathrobe is made of towel material for drying off.", a_ja: "浴衣は軽い綿で作られた日本の服です。バスローブは体を拭くためのタオル地でできています。" },
+      { q: "What's the difference between a rollaway bed and sofa bed?", q_ja: "「折りたたみ式簡易ベッド」と「ソファベッド」の違いは？", a: "A rollaway bed is a portable bed on wheels. A sofa bed is a couch that transforms into a bed.", a_ja: "折りたたみベッドは車輪付きの持ち運び可能なベッドです。ソファベッドはベッドに変形するソファです。" },
+      { q: "What's the difference between a fee and a bill?", q_ja: "「手数料」と「請求書」の違いは？", a: "A fee is the cost of a specific service. A bill is a document asking you for payment.", a_ja: "feeは特定サービスの費用です。billは支払いを請求する文書です。" },
+      { q: "What's the difference between a good point and a downside?", q_ja: "「良い点」と「悪い点」の違いは？", a: "A good point is a positive advantage. A downside is a negative disadvantage.", a_ja: "good pointはプラスの長所です。downsideはマイナスの短所です。" },
+      { q: "What's the difference between a king-sized bed and a queen-sized bed?", q_ja: "「キングサイズ」と「クイーンサイズ」の違いは？", a: "A king-sized bed is extremely wide. A queen-sized bed is slightly smaller.", a_ja: "キングサイズベッドは非常に幅が広いです。クイーンサイズベッドはそれより少し小さめです。" },
+      { q: "What's the difference between a bed and breakfast and a traditional Japanese-style inn?", q_ja: "「B&B」と「和風旅館」の違いは？", a: "A Japanese-style inn features tatami mats and futons. A B&B usually offers Western-style rooms.", a_ja: "旅館は畳や布団が特徴です。B&Bは通常洋室を提供します。" },
+      { q: "What's the difference between fine print and fee?", q_ja: "「細かい注記」と「手数料」の違いは？", a: "Fine print refers to detailed terms in small text. A fee is the money you pay for a service.", a_ja: "fine printは小さな文字で書かれた詳細な規約のことです。feeはサービスに対して支払うお金のことです。" },
+      { q: "What's the difference between shampoo and conditioner?", q_ja: "「シャンプー」と「コンディショナー」の違いは？", a: "Shampoo cleans dirt from your hair. Conditioner makes your hair soft and smooth.", a_ja: "シャンプーは髪の汚れを落とします。コンディショナーは髪を柔らかく滑らかにします。" },
+      { q: "What kind of facilities do hotels have?", q_ja: "ホテルにはどのような施設がありますか？", a: "Hotels often have restaurants and swimming pools. Many also offer a gym.", a_ja: "ホテルにはよくレストランやプールがあります。多くの場所でジムも併設されています。" },
+      { q: "What will happen if I forget my homework?", q_ja: "もし私が宿題を忘れたらどうなりますか？", a: "You will have to finish it during lunchtime. Otherwise, you must stay after school.", a_ja: "昼休みにそれを終わらせなければならなくなります。さもなければ放課後残ることになります。" },
+      { q: "What will happen if you skip school?", q_ja: "もしあなたが学校をサボったらどうなりますか？", a: "My parents and teacher will get very angry. I will also fall behind in class.", a_ja: "両親と先生にとても怒られます。授業にも遅れてしまいます。" },
+      { q: "What will happen if you only eat carrots?", q_ja: "もしあなたがニンジンしか食べなかったらどうなりますか？", a: "Your skin might turn slightly orange. Also, you will lack essential nutrients.", a_ja: "肌が少しオレンジ色になるかもしれません。また、必要な栄養素が不足してしまいます。" },
+      { q: "What will happen if aliens come to Earth?", q_ja: "もしエイリアンが地球にやってきたらどうなりますか？", a: "People around the world will be shocked. Scientists will try to communicate with them.", a_ja: "世界中の人々がショックを受けるでしょう。科学者たちは彼らとコミュニケーションを取ろうとするはずです。" },
+      { q: "What will you do if you move to Taiwan tomorrow?", q_ja: "もし明日台湾に引っ越すことになったら、どうしますか？", a: "I will buy delicious bubble tea first. Then, I will explore the local night markets.", a_ja: "まず美味しいタピオカミルクティーを買います。それから地元の夜市を探検します。" },
+      { q: "What will you do if you become famous?", q_ja: "もし有名になったら、どうしますか？", a: "I will travel around the world. I want to meet my fans in different countries.", a_ja: "世界中を旅します。様々な国のファンに会いに行きたいです。" },
+      { q: "What will you do if you become a cat?", q_ja: "もし猫になったら、どうしますか？", a: "I will sleep in the sunshine all day long. I will not do any homework.", a_ja: "一日中ひなたぼっこをしながら寝ます。宿題は一切やりません。" },
+      { q: "What will you do if you win the ¥1,000,000 lottery?", q_ja: "もし宝くじで100万円が当たったら、どうしますか？", a: "I will save half of the money. Then, I will go on a trip with my family.", a_ja: "お金の半分を貯金します。それから家族と一緒に旅行に行きます。" },
+      { q: "What will you do if you become the Japanese Prime Minister?", q_ja: "もし日本の総理大臣になったら、どうしますか？", a: "I will make school holidays longer. All students will be very happy.", a_ja: "学校の休みを長くします。すべての学生がとても喜ぶでしょう。" },
+      { q: "When will English class end?", q_ja: "英語の授業はいつ終わりますか？", a: "It will end at 2:30 PM. We have ten minutes left.", a_ja: "午後2時30分に終わります。あと10分残っています。" },
+      { q: "When will you do your homework tonight?", q_ja: "今夜、いつ宿題をしますか？", a: "I will do my homework after taking a bath. I want to finish it early.", a_ja: "お風呂に入った後に宿題をします。早く終わらせたいです。" },
+      { q: "When will you eat dinner tonight?", q_ja: "今夜、いつ夕食を食べますか？", a: "I will eat dinner at 7:00 PM. My family always eats together.", a_ja: "午後7時に夕食を食べます。家族はいつも一緒に食べます。" },
+      { q: "When will we take our speaking test?", q_ja: "スピーキングテストはいつ受けますか？", a: "We will take it next week on October 13th. We should practice today.", a_ja: "来週の10月13日に受けます。今日練習しておくべきですね。" },
+      { q: "Where are you going to go this weekend?", q_ja: "今週末、どこに行く予定ですか？", a: "I am going to go shopping in Shibuya. I want to buy new clothes.", a_ja: "渋谷に買い物に行く予定です。新しい服を買いたいです。" },
+      { q: "Where do you like to go during summer vacation?", q_ja: "夏休みの間、どこに行くのが好きですか？", a: "I like to go to my grandparents' house. It is located in the countryside.", a_ja: "祖父母の家に行くのが好きです。田舎にあります。" },
+      { q: "Where is your favorite vacation destination?", q_ja: "一番お気に入りの旅行先はどこですか？", a: "My favorite vacation destination is Okinawa. The ocean there is beautiful.", a_ja: "一番お気に入りの旅行先は沖縄です。そこの海はとてもきれいです。" },
+      { q: "Where will you live when you are an adult?", q_ja: "大人になったらどこに住みますか？", a: "I will live in a quiet apartment in Tokyo. I like living in the city.", a_ja: "東京の静かなマンションに住みます。街に住むのが好きだからです。" },
+      { q: "Which class will we have next?", q_ja: "次はどの授業ですか？", a: "We will have math class next. I need to get my textbook ready.", a_ja: "次は数学の授業です。教科書の準備をしなければなりません。" },
+      { q: "Which hotel facility do you go to the most?", q_ja: "ホテルの施設で、一番よく行くのはどこですか？", a: "I go to the breakfast restaurant the most. I look forward to the buffet.", a_ja: "朝食レストランに一番よく行きます。ビュッフェを楽しみにしています。" },
+      { q: "Which kind of accommodation is the most expensive?", q_ja: "どの種類の宿泊施設が一番高いですか？", a: "Five-star luxury hotels are the most expensive. They offer top-quality service.", a_ja: "5つ星の高級ホテルが一番高いです。最高品質のサービスを提供しています。" },
+      { q: "Which subject are you going to study tonight?", q_ja: "今夜はどの教科を勉強する予定ですか？", a: "I am going to study English and science tonight. I have a lot of review to do.", a_ja: "今夜は英語と理科を勉強する予定です。復習することがたくさんあります。" },
+      { q: "Which type of accommodation is the most popular in Japan?", q_ja: "日本で最も人気のある宿泊施設の種類は何ですか？", a: "Hotels and Japanese-style inns are the most popular. Many tourists love staying at inns.", a_ja: "ホテルや旅館が最も人気があります。多くの観光客が旅館に泊まるのを好みます。" },
+      { q: "Which university will you go to after high school?", q_ja: "高校を卒業したらどの大学に行きますか？", a: "I want to go to a university in Tokyo. I plan to study English literature there.", a_ja: "東京の大学に行きたいです。そこで英文学を学ぶつもりです。" },
+      { q: "Who will be our class president next year?", q_ja: "来年、私たちの学級委員長になるのは誰でしょうか？", a: "I think Tanaka-kun will be our class president. He is very reliable.", a_ja: "来年は田中君が委員長になると思います。彼はとても頼りになります。" },
+      { q: "Who will be our homeroom teacher next year?", q_ja: "来年、私たちの担任の先生になるのは誰でしょうか？", a: "I think Mr. Smith will be our homeroom teacher. He is very kind to everyone.", a_ja: "スミス先生が担任になると思います。彼はみんなにとても親切です。" },
+      { q: "Who will get a perfect score on the English exam?", q_ja: "英語のテストで満点を取るのは誰でしょうか？", a: "I hope I will get a perfect score. I studied very hard for it.", a_ja: "私が満点を取れるといいなと思っています。そのためにとても一生懸命勉強しました。" },
+      { q: "Who will give us the speaking tests?", q_ja: "誰がスピーキングテストを実施しますか？", a: "Our native English teacher will give us the test. We will talk one-on-one.", a_ja: "ネイティブの英語の先生がテストを行います。一対一で話すことになります。" },
+      { q: "Why might someone use a business center during a trip?", q_ja: "旅行中にビジネスセンターを利用する人がいるのはなぜでしょうか？", a: "They might need to print important documents. Some people also need to work on computers.", a_ja: "重要な書類を印刷する必要があるかもしれません。パソコンで作業する必要がある人もいます。" },
+      { q: "Will you have curry for dinner tonight?", q_ja: "今夜の夕食にカレーを食べますか？", a: "Yes, I will have curry for dinner tonight. My mother is making it now.", a_ja: "はい、今夜の夕食にカレーを食べる予定です。今お母さんが作ってくれています。" },
+      { q: "Would you like extra towels in your room?", q_ja: "お部屋に追加のタオルはいかがですか？", a: "Yes, please. I would like two extra bath towels.", a_ja: "はい、お願いします。追加でバスタオルを2枚ほしいです。" },
+      { q: "Would you like to go to Hawaii?", q_ja: "ハワイに行ってみたいですか？", a: "Yes, I would love to go to Hawaii. I want to see the beautiful ocean.", a_ja: "はい、ぜひハワイに行ってみたいです。美しい海が見たいです。" }
+    ];
+
+    let voices = [];
+    const voiceSelect = document.getElementById('voiceSelect');
+    const rateInput = document.getElementById('rate');
+    const rateVal = document.getElementById('rateVal');
+    const questionList = document.getElementById('questionList');
+
+    function populateVoices() {
+      voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+      voiceSelect.innerHTML = '';
+      if (voices.length === 0) {
+        const option = document.createElement('option');
+        option.textContent = 'Standard English Voice';
+        voiceSelect.appendChild(option);
+        return;
+      }
+      let selectedIndex = 0;
+      voices.forEach((voice, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        if (voice.name.toLowerCase().includes('natural') || voice.name.toLowerCase().includes('google') || voice.name.toLowerCase().includes('samantha')) {
+          selectedIndex = index;
+        }
+        voiceSelect.appendChild(option);
+      });
+      voiceSelect.selectedIndex = selectedIndex;
+    }
+
+    populateVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    rateInput.addEventListener('input', () => rateVal.textContent = parseFloat(rateInput.value).toFixed(2));
+
+    function speakText(text) {
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = parseFloat(rateInput.value);
+      if (voices[voiceSelect.value]) {
+        utterance.voice = voices[voiceSelect.value];
+      }
+      speechSynthesis.speak(utterance);
+    }
+
+    function renderQuestions() {
+      questionList.innerHTML = '';
+      qaData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'qa-card';
+        card.innerHTML = `
+          <div class="qa-header">
+            <span class="q-num">Q${index + 1}</span>
+          </div>
+          <!-- 質問セクション -->
+          <div class="section-box">
+            <div class="section-content">
+              <div class="en-text blur-text" onclick="toggleBlur(this)">${item.q}</div>
+              <span class="ja-text blur-text" onclick="toggleBlur(this)">${item.q_ja}</span>
+            </div>
+            <button class="play-btn" title="質問を聞く" onclick="speakText('${item.q.replace(/'/g, "\\'")}')">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
+          <!-- 回答セクション -->
+          <div class="section-box">
+            <div class="section-content">
+              <div class="en-text blur-text" style="color: #60a5fa;" onclick="toggleBlur(this)">${item.a}</div>
+              <span class="ja-text blur-text" onclick="toggleBlur(this)">${item.a_ja}</span>
+            </div>
+            <button class="play-btn" title="回答を聞く" style="background:#2563eb;" onclick="speakText('${item.a.replace(/'/g, "\\'")}')">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
+        `;
+        questionList.appendChild(card);
+      });
+    }
+
+    window.toggleBlur = function(el) {
+      el.classList.toggle('revealed');
+    };
+
+    window.toggleAllTexts = function(show) {
+      const allBlurTexts = document.querySelectorAll('.blur-text');
+      allBlurTexts.forEach(el => {
+        if (show) {
+          el.classList.add('revealed');
+        } else {
+          el.classList.remove('revealed');
+        }
+      });
+    };
+
+    renderQuestions();
+  </script>
+</body>
+</html>
