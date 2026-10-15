@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>英語学習リスニングプレーヤー（高音質版）</title>
+<title>英語学習リスニングプレーヤー（高音質・目次付き）</title>
 <style>
   body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
@@ -58,9 +58,40 @@
     border: 1px solid #ccc;
     max-width: 150px;
   }
+  
+  /* 目次メニューのスタイル */
+  #toc {
+    max-width: 800px;
+    margin: 15px auto 0;
+    padding: 15px 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .toc-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #e3f2fd;
+    color: #1976d2;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #bbdefb;
+  }
+  .toc-btn:hover {
+    background: #1976d2;
+    color: white;
+  }
+
   #content {
     max-width: 800px;
-    margin: 20px auto;
+    margin: 15px auto 20px;
     padding: 20px;
     background: white;
     box-shadow: 0 0 10px rgba(0,0,0,0.05);
@@ -86,6 +117,11 @@
     background-color: #fff3e0 !important;
     border-left: 4px solid #ff9800;
     font-weight: bold;
+  }
+  
+  /* ジャンプした時に固定ヘッダーの下に隠れないようにする余白 */
+  .section-header {
+    scroll-margin-top: 100px;
   }
 </style>
 </head>
@@ -116,6 +152,10 @@
     </div>
   </div>
 
+  <!-- 目次エリア -->
+  <div id="toc"></div>
+
+  <!-- 本文エリア -->
   <div id="content"></div>
 
   <!-- ここに読み上げるテキストデータを格納します（内容は前回と同じ） -->
@@ -744,6 +784,7 @@ My sister had the server bring another glass of water.
 <script>
   const rawData = document.getElementById('rawData').value;
   const contentDiv = document.getElementById('content');
+  const tocDiv = document.getElementById('toc');
   const playBtn = document.getElementById('playBtn');
   const stopBtn = document.getElementById('stopBtn');
   const englishOnlyCheckbox = document.getElementById('englishOnly');
@@ -757,12 +798,13 @@ My sister had the server bring another glass of water.
   let currentIndex = 0;
   const lineData = [];
   let availableVoices = [];
+  let sectionIndex = 0;
 
   function isJapanese(text) {
     return /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
   }
 
-  // テキストのパース
+  // テキストのパースと目次（ボタン）の生成
   const lines = rawData.split('\n').map(l => l.trim());
   lines.forEach((line) => {
     if (!line) return;
@@ -770,12 +812,51 @@ My sister had the server bring another glass of water.
     p.className = 'line';
     p.textContent = line;
 
-    if (/^【.*】$/.test(line) || /^①$|^②$|^③$|^④$/.test(line)) {
+    // 【 】で囲まれた行を見出しとして扱う
+    if (/^【.*】$/.test(line)) {
+      const sId = 'section-' + sectionIndex;
+      p.id = sId;
+      p.className += ' section-header'; // スクロール位置調整用のクラス
+      p.style.fontWeight = 'bold';
+      p.style.marginTop = '20px';
+      p.style.fontSize = '1.2em';
+      
+      // 目次ボタンの作成
+      const tocBtn = document.createElement('a');
+      tocBtn.className = 'toc-btn';
+      tocBtn.textContent = line.replace(/【|】/g, ''); // 【 】を取り除いてスッキリ表示
+      tocBtn.onclick = () => {
+        // クリックされたら該当箇所へスムーズスクロール
+        document.getElementById(sId).scrollIntoView({ behavior: 'smooth' });
+        // その箇所から再生できるようにcurrentIndexを更新
+        const targetIndex = lineData.findIndex(item => item.el === p);
+        if (targetIndex !== -1) {
+            currentIndex = targetIndex;
+            // 再生中の場合は一度止めてからそこから再開、止まっていればハイライトだけ移動
+            if (isPlaying) {
+                window.speechSynthesis.cancel();
+                speakNext();
+            } else {
+                lineData.forEach(item => item.el.classList.remove('playing'));
+                p.classList.add('playing');
+            }
+        }
+      };
+      tocDiv.appendChild(tocBtn);
+      sectionIndex++;
+      
+      contentDiv.appendChild(p);
+      lineData.push({ text: line, el: p, isJp: true }); // 見出しは読まないか日本語扱い
+      return; 
+    }
+
+    if (/^①$|^②$|^③$|^④$/.test(line)) {
       p.style.fontWeight = 'bold';
       p.style.marginTop = '20px';
       p.style.fontSize = '1.2em';
       contentDiv.appendChild(p);
-      return; 
+      lineData.push({ text: line, el: p, isJp: true });
+      return;
     }
 
     if (isJapanese(line)) {
@@ -788,6 +869,11 @@ My sister had the server bring another glass of water.
     lineData.push({ text: line, el: p, isJp: isJapanese(line) });
   });
 
+  // 目次がない場合は枠自体を非表示
+  if (sectionIndex === 0) {
+      tocDiv.style.display = 'none';
+  }
+
   // デバイスの音声リストを取得してプルダウンにセットする関数
   function populateVoiceList() {
     availableVoices = window.speechSynthesis.getVoices();
@@ -799,22 +885,18 @@ My sister had the server bring another glass of water.
       option.value = index;
       option.textContent = `${voice.name} (${voice.lang})`;
 
-      // 英語の音声
       if (voice.lang.startsWith('en')) {
         enVoiceSelect.appendChild(option);
       }
-      // 日本語の音声
       if (voice.lang.startsWith('ja')) {
         jaVoiceSelect.appendChild(option);
       }
     });
 
-    // 綺麗な声（GoogleやMicrosoftのオンライン音声）を優先的にデフォルト選択する
     selectBestVoice(enVoiceSelect, ['Natural', 'Online', 'Google UK', 'Google US']);
     selectBestVoice(jaVoiceSelect, ['Nanami', 'Keita', 'Natural', 'Online', 'Google 日本語']);
   }
 
-  // 優先したい音声名が含まれていれば自動選択
   function selectBestVoice(selectElement, preferredNames) {
     const options = Array.from(selectElement.options);
     for (let name of preferredNames) {
@@ -826,7 +908,6 @@ My sister had the server bring another glass of water.
     }
   }
 
-  // ブラウザの音声リストがロードされたら実行
   populateVoiceList();
   if (speechSynthesis.onvoiceschanged !== undefined) {
     speechSynthesis.onvoiceschanged = populateVoiceList;
@@ -841,7 +922,8 @@ My sister had the server bring another glass of water.
 
     const currentItem = lineData[currentIndex];
 
-    if (englishOnlyCheckbox.checked && currentItem.isJp) {
+    // 記号だけの行や「英語のみ」時のスキップ処理
+    if (/^【.*】$|^①$\vert{}^②$|^③$\vert{}^④$/.test(currentItem.text) || (englishOnlyCheckbox.checked && currentItem.isJp)) {
       currentIndex++;
       speakNext();
       return;
@@ -849,12 +931,13 @@ My sister had the server bring another glass of water.
 
     lineData.forEach(item => item.el.classList.remove('playing'));
     currentItem.el.classList.add('playing');
+    
+    // 現在の読み上げ行を画面中央付近に自動スクロール
     currentItem.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     const utterance = new SpeechSynthesisUtterance(currentItem.text);
     utterance.rate = parseFloat(speedSelect.value);
 
-    // 選択された音声を適用する
     if (currentItem.isJp && jaVoiceSelect.value) {
       utterance.voice = availableVoices[jaVoiceSelect.value];
     } else if (!currentItem.isJp && enVoiceSelect.value) {
