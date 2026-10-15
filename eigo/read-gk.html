@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語学習リスニングプレーヤー（高音質版）</title>
+<style>
+  body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+  }
+  #header {
+    position: sticky;
+    top: 0;
+    background-color: #ffffff;
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+  }
+  button {
+    font-size: 14px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+  #playBtn {
+    background-color: #4CAF50;
+    color: white;
+  }
+  #playBtn:hover { background-color: #45a049; }
+  #stopBtn {
+    background-color: #f44336;
+    color: white;
+  }
+  #stopBtn:hover { background-color: #da190b; }
+  .controls-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    background: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  select {
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    max-width: 150px;
+  }
+  #content {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+  }
+  .line {
+    padding: 8px 10px;
+    margin: 4px 0;
+    border-radius: 4px;
+    line-height: 1.6;
+    transition: background-color 0.3s;
+  }
+  .line.english {
+    font-size: 1.1em;
+    font-weight: 500;
+  }
+  .line.japanese {
+    color: #666;
+    font-size: 0.95em;
+    margin-bottom: 15px;
+  }
+  .playing {
+    background-color: #fff3e0 !important;
+    border-left: 4px solid #ff9800;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+  <div id="header">
+    <button id="playBtn">▶ 再生</button>
+    <button id="stopBtn">■ 停止</button>
+    <div class="controls-group">
+      <label><input type="checkbox" id="englishOnly"> 英語のみ</label>
+    </div>
+    <div class="controls-group">
+      <label>速度:</label>
+      <select id="speed">
+        <option value="0.7">0.7x</option>
+        <option value="0.9">0.9x</option>
+        <option value="1.0" selected>1.0x</option>
+        <option value="1.2">1.2x</option>
+      </select>
+    </div>
+    <div class="controls-group">
+      <label>英語の声:</label>
+      <select id="enVoiceSelect"></select>
+    </div>
+    <div class="controls-group">
+      <label>日本語の声:</label>
+      <select id="jaVoiceSelect"></select>
+    </div>
+  </div>
+
+  <div id="content"></div>
+
+  <!-- ここに読み上げるテキストデータを格納します（内容は前回と同じ） -->
+  <textarea id="rawData" style="display:none;">
+【Lesson 7-Read】 
+Food Waste in Japan
+日本の食料廃棄
+①
+Hello, everyone.Today, I would like to talk about the serious problems of food waste in Japan.
+みなさん、こんにちは。今日は日本の食料廃棄という深刻な問題についてお話ししたいと思います。
+By the end of this talk, I hope you will be more interested in the topic.
+この話が終わる時には、みなさんがこの話題についていっそう関心を持ってくれることを願います。
+First, please take a look at this picture.
+まず、この写真を見てください。
+It is a picture of a large amount of ehomaki in a garbage container.
+これはごみ容器に入った大量の恵方巻の写真です。
+Stores and factories threw them away after setsubun.
+節分のあとに店や工場がそれらを廃棄しました。
+Social media showed this picture and it shocked many people.
+ソーシャルメディアでこの写真が表示されると、多くの人にショックを与えました。
+Have you seen this kind of photo before?
+これまでにこのような写真を見たことがありますか。
+This is a typical case of "food waste"; food is thrown away even though it can be eaten.
+これは「食料廃棄」の典型的な事例です。食べられるにもかかわらず食料が廃棄されているのです。
+The total amount of food waste in 2019 in Japan was over six million tons!
+日本における2019年の食料廃棄の総量は600万トンを超えました。
+That's about 50 kilograms per person in a year.
+それは1人あたり年におよそ50キログラムになります。
+Next, please take a look at this chart.
+次に、このグラフをご覧ください。
+More than half the food waste comes from the food industry, such as factories, stores and restaurants.
+食料廃棄の半分以上が工場や店、レストランなど食品産業から発生しています。
+The rest comes from individual homes.
+残りは個人の家庭からです。
+The Japanese government has been trying to reduce food waste.
+日本政府は食料廃棄を減らそうと努力してきています。
+But restaurant owners are worried about losing customers if they don't serve as much food as before.
+しかし、レストランのオーナーは、以前より提供する料理の量を減らすと顧客を失うのではないかと心配しています。
+So they continue to serve a lot of food.
+ですから、彼らはたくさんの料理を提供し続けます。
+At home, people believe that "freshness" is important, so they avoid buying or using old food though it can still be eaten.
+家庭では、人々は「新鮮さ」が重要だと信じて、まだ食べられるのにもかかわらず、古い食品を買ったり使ったりすることを避けます。
+Because of these actions, a lot of food is thrown away.
+このような行動によってたくさんの食品が廃棄されるのです。
+②
+However, people's thinking may be changing little by little.
+しかしながら、人々の考え方は少しずつ変化しているかもしれません。
+After people saw the shocking photo of the ehomaki, they became more aware of food waste.
+恵方巻のショッキングな写真を見たあと、人々は食料廃棄をより意識するようになりました。
+In order to reduce waste, some stores have stopped selling so much food, such as ehomaki in February or unagi in July.
+廃棄を減らすために、2月の恵方巻や7月のうなぎなど、大量の食品を販売するのをやめた店もあります。
+Also, major convenience stores have been selling rice balls, lunchboxes and sandwiches at discount prices just before their best before date.
+また、大手コンビニエンスストアでは、賞味期限の直前に割引価格でおにぎりや弁当、サンドウィッチを売るようになっています。
+In addition, Japan has started to introduce various programs.
+さらに、日本ではさまざまな事業が始まっています。
+One of these programs is the "NO-FOODLOSS PROJECT."
+この事業の1つが「食品ロス削減国民運動」です。
+By using unique logos with the "loss-non" character, they are trying to inform people about this serious situation.
+「ろすのん」というキャラクターがついたユニークなロゴを用いて、人々にこの深刻な事態を伝えようと試みています。
+③
+Lastly, I would like to talk about other projects such as food banks and mobile apps.
+最後に、フードバンクやモバイルアプリなど、その他の計画についてお話ししたいと思います。
+Second Harvest Japan is Japan's first nationwide food bank.
+セカンドハーベストジャパンは日本で最初の全国的なフードバンクです。
+They collect surplus food and provide it to people in need.
+余った食品を回収してそれを困っている人に提供しています。
+They are also trying to increase "pick-up locations" in Tokyo and other areas.
+また、東京や他の地域に「ピックアップロケーション」を増やそうともしています。
+Through this system, people can pick up food at any time from places such as a nearby police station, fire station or hospital.
+この仕組みを通じて、人々はいつでも近くの警察署や消防署、病院などの場所で食料を受け取ることができます。
+Their goal is to support 100,000 people a year!
+彼らの目標は年間10万人を支援することです！
+The Mottainai Food Center is a similar organization.
+日本もったいない食品センターも同様の組織です。
+The Japanese word mottainai expresses a sense of regret about waste.
+日本語の「もったいない」という言葉は廃棄を遺憾に思う感覚を表します。
+The center collects or buys surplus food from stores and food makers.
+センターは店や食品メーカーから余った食品を回収したり購入したりします。
+Then they give this food to support groups and to people in need.
+それからこの食料を支援団体や困っている人々に提供します。
+Please look at the websites of these food banks if you want to learn more about them!
+もしそれらについてもっと知りたいと思ったら、これらのフードバンクのウェブサイトをご覧ください！
+Some mobile apps are also used in major cities.
+主要都市で利用されているモバイルアプリもあります。
+Stores and restaurants post pictures and prices of surplus food, and people come and buy the food at discount prices.
+店やレストランが余った食品の写真と値段を投稿します。すると人々は来店して、割引価格でその食品を購入します。
+These projects are helping to reduce Japan's serious food waste problem.
+これらのプロジェクトは日本の深刻な食料廃棄問題を減らすのに役立っています。
+We all need to do our part to reduce waste.
+廃棄を減らすために、私たちすべてが自分のできる役割を行う必要があります。
+One small step can lead to great progress.
+小さな一歩が非常に大きな前進につながります。
+So let's start today and make a difference!
+さあ、今日から始めて変えましょう！
+Thank you for listening.
+ご清聴ありがとうございました。
+
+【Lesson 11-Read】
+AI and Man Working Together
+協力するAIと人間
+①
+Imagine that it is the year 2050.
+今年が2050年であると想像してみましょう。
+You are watching the Soccer World Cup final.
+あなたはサッカーワールドカップの決勝戦を観戦しています。
+It is an exciting game.
+それはわくわくする試合です。
+Brazil is the number one team in the world and you want them to win.
+ブラジルは世界でいちばんのチームであなたは彼らに勝ってほしいと思っています。
+In the end though, they lose.
+しかし結局彼らは負けます。
+They are not strong enough to beat the other team.
+彼らはもう一方のチームを破るほど強くないのです。
+The winner is the robot team.
+勝者はロボットチームです。
+They have beaten the best human sports team in the world.
+彼らは世界でいちばんの人間のアスリートチームを破ったのです。
+Of course, this will not come true.
+もちろん、これは実現しないでしょう。
+Or will it?
+それとも実現するでしょうか。
+In fact, that is the goal of "RoboCup," a robot soccer league which began in 1992.
+実は、それは1992年に始まったロボットのサッカーリーグ、「ロボカップ」の目標なのです。
+②
+According to a survey published in 2017, some researchers think that computers will be better than humans at most tasks by 2060.
+2017年に発表された調査によると、2060年までにほとんどの作業でコンピューターが局間に勝ると考えている研究者もいます。
+For example, they think that computers will be powerful enough to beat humans at translating languages by 2024, driving trucks by 2027 and performing surgery by 2053.
+例えば、2024年までに言語の翻訳で、2027年までにトラックの運転で、2053年までに手術の執刀で、コンピューターは局間に打ち勝つのに十分な能力を持つだろうと彼らは考えているのです。
+In fact, computers are already better than humans at some tasks.
+実際、コンピューターはいくつかの作業ですでに人間より優れています。
+In the late 1980s, scientists at the computer company IBM began to program a computer to play chess.
+1980年代の後半に、コンピューター会社であるIBMの科学者がチェスをするコンピューターのプログラミングを始めました。
+They called it "Deep Blue."
+彼らはそれを「ディープ・ブルー」と呼びました。
+In 1996, IBM invited the most famous chess player in the world, Garry Kasparov, to play against Deep Blue.
+1996年にIBMは世界で最も有名なチェスの競技者であるガルリ・カスパロフに、ディープ・ブルーと対戦することを依頼しました。
+Kasparov won the match.
+カスパロフはその対戦に勝利しました。
+The following year, IBM asked Kasparov to play again.
+翌年、IBMはカスパロフに再度の対戦を要請しました。
+Kasparov believed that he would win again.
+カスパロフは自分が再び勝つだろうと信じていました。
+But in 1997, Deep Blue was stronger than before.
+しかし、1997年には、ディープ・ブルーは以前より強くなっていました。
+It could now do 200 million math calculations per second.
+今や1秒間に2億回の数学的計算ができました。
+Thanks to this speed, it could quickly understand which move to make.
+このスピードのおかげでどの手を打つべきかすばやくわかりました。
+This time, Deep Blue won the match.
+今回はディープ・ブルーが対戦に勝利しました。
+It was a victory of computers over man and the beginning of the AI age.
+それはコンピューターの人間に対する勝利であり、AI時代の幕開けでした。
+③
+Although this event shocked many people, scientists soon realized that AI could be very useful to society.
+このできごとは多くの人々にショックを与えましたが、AIは社会にとって非常に役立つであろうことに科学者たちはすぐに気づきました。
+Computers could be taught how to do many kinds of tasks.
+コンピューターには多くの種類の作業の方法を教え込むことができるのです。
+One important example is the use of AI in hospitals.
+1つの重要な例は病院でのAIの利用です。
+It is usually hard for doctors to check X-rays for many hours, and it often takes time for them to check each X-ray.
+医師にとって、何時間もの間レントゲン画像の確認をすることはたいてい大変なことで、それぞれのレントゲン画像を確認することはしばしば時間がかかります。
+But by storing a large amount of X-ray data, computer programs can learn to look at X-rays and tell that a patient may be sick.
+しかし、大量のレントゲン画像のデータを記憶させておくことによって、コンピュータープログラムはレントゲン画像を見て患者が病気である可能性を判断することができるようになります。
+These programs can check X-rays very quickly.
+教育プログラムはレントゲン画像を迅速にチェックできます。
+And, unlike people, they do not become tired.
+そして、人間とは違ってコンピュータープログラムは疲れません。
+By using these programs, doctors can save a lot of time in finding serious diseases.
+これらのプログラムを利用することによって、医師は深刻な病気を発見するのにかかる時間を大幅に節約することができます。
+④
+With the help of advanced AI technology, the robot soccer team may be able to beat the best human team one day.
+進化したAI技術の助けを借りて、ロボットサッカーチームはいつか人間の最強のチームを破ることができるかもしれません。
+Advanced AI technology can also be used in many ways in society.
+進化したAI技術は社会における多くの方面でも利用される可能性があります。
+For example, we can develop robotic arms or legs for people who need them.
+例えば、ロボット義手やロボット義足を、それらを必要とする人々ーのために開発することができるでしょう。
+Or we can create digital clones to do certain work for us such as answering phones or even attending a meeting.
+または、電話に出たり、会合に出席さえするような、私たちの代わりに特定の仕事をしてくれるデジタルクローンを作り出すこともできるでしょう。
+Then we can focus on things that we really want to do, or things that only we can do.
+そうすると、私たちは本当にしたいことや私たちにしかできないことに集中することができます。
+So we shouldn't think that the twenty-first century will be an age of battles between humans and AI.
+ですから、私たちは21世紀が人間とAIの戦いの時代だと考えるべきではないでしょう。
+Rather, humans and AI will work together to make the world a better place.
+むしろ、人間とAIが協力して世界をより良い場所にしていくでしょう。
+Since the beginning of time, we have always used technology to improve our lives,
+太古の昔から、私たちは常に自分たちの生活を改善していくために技術を用いてきました。
+and we will continue to do so in the future.
+そして、将来もそれを続けていくでしょう。
+Humans and AI are on the same team.
+人間とAIは味方同士なのです。
+
+【Lesson 5 Read】 Disney and Ghibli Fascinate the World
+ディズニーとジブリが世界を魅了する
+Mr. Sato: Today, Kathy and Akira are going to give a presentation.
+佐藤先生: 本日は、キャシーとアキラが発表を行います。
+They are going to talk about the cost, history and style of famous animation studios.
+彼らは有名なアニメーションスタジオの（制作）費用、歴史、様式について話します。
+Kathy, please start.
+キャシー、始めてください。
+Kathy: Thank you, Mr. Sato.
+キャシー: ありがとうございます、佐藤先生。
+I'm going to talk about one of the most famous animation studios, Disney.
+私は最も有名なアニメーションスタジオの1つであるディズニーについてお話しします。
+I'm sure that you all have at least one favorite Disney movie.
+きっとみなさんには少なくとも1本のお気に入りのディズニー映画があると思います。
+Mine is Frozen.
+私のいちばん好きなディズニー映画は「アナと雪の女王」です。
+Disney has a long history, almost a hundred years.
+ディズニーには100年近くの長い歴史があります。
+They make movies on a very large scale.
+彼らは非常に大きな規模で映画を作っています。
+A Disney movie today costs over 100 million dollars to produce.
+今日のディズニー映画の制作費は1億ドルを超えています。
+For example, the studio spent about 260 million dollars to produce Tangled.
+例えば、スタジオは「塔の上のラプンツェル」の制作に約2億6,000万ドルを費やしました。
+Of course, they make big sales, too.
+もちろん、彼らは大きな売り上げも上げています。
+Many of Disney's popular movies make over a billion dollars.
+ディズニーの人気映画の多くは収入10億ドル超えです。
+Next, let's take a look at their style.
+次に、彼らの様式を見てみましょう。
+Disney's movies are mainly for children.
+ディズニーの映画は主に子供向けです。
+The main characters are often unique and have a strong sense of justice.
+主人公は個性的で正義感が強いことが多いです。
+The main theme of the stories is standing up against the bad guys.
+物語のメインテーマは悪者に立ち向かうことです。
+It is simple and clear.
+それは単純でわかりやすいです。
+Also, succeeding and growing up are very important themes.
+また、成功と成長は非常に重要なテーマです。
+Children respect the characters and often feel close to them.
+子供たちは登場人物を尊敬し、よく彼らに親しみを感じます。
+I think simplicity is one of the reasons for Disney's success.
+私は単純さがディズニーの成功の理由の1つだと思います。
+Thank you for listening!
+ご清聴ありがとうございました！
+Mr. Sato: Thank you, Kathy.
+佐藤先生: ありがとう、キャシー。
+That was excellent!
+素晴らしかったよ！
+Next, let's hear from Akira.
+次にアキラの話を聞いてみましょう。
+Akira: Hi, everyone.
+アキラ: こんにちは、みなさん。
+I did some research on Studio Ghibli.
+僕はスタジオジブリについて調べてみました。
+They started in 1985 and they are now the most successful animation studio in Japan.
+彼らは1985年に活動を始め、現在日本で最も成功しているアニメーションスタジオです。
+They created many great movies and I'm very proud of their works.
+彼らはたくさんの素晴らしい映画を作りました。そして僕は彼らの作品をとても誇りに思っています。
+If we compare Ghibli with Disney, Ghibli makes movies on a smaller scale.
+ジブリとディズニーを比較するなら、ジブリはより小さな規模で映画を作っています。
+A Ghibli movie usually costs about 18 to 28 million dollars to produce.
+ジブリ映画の制作費は通常約1,800万〜2,800万ドルです。
+Ghibli's most popular movie was Spirited Away.
+ジブリの最も人気のある映画は「千と千尋の神隠し」でした。
+It made about 300 million dollars worldwide.
+それは世界中で約3億ドルの（興行）収入になりました。
+Ghibli's style is very different from that of Disney.
+ジブリの様式はディズニーとは大きく異なります。
+First of all, Ghibli's movies have heavy and serious themes.
+第1に、ジブリの映画は重くて深刻なテーマを含んでいます。
+So both children and adults can enjoy watching them.
+ですから子供も大人も映画を見て楽しむことができます。
+After watching movies such as Nausicaä of the Valley of the Wind and Princess Mononoke, many people become aware of environmental destruction and the importance of peace.
+「風の谷のナウシカ」や「もののけ姫」のような映画を見たあとに、多くの人々が環境破壊と平和の重要性に気づきます。
+Secondly, Ghibli's stories are not about right or wrong.
+第2に、ジブリの物語は善悪についての問題ではありません。
+They describe complex human emotions.
+複雑な人間の感情を描写しているのです。
+For example, Spirited Away describes unique characters in a mysterious world.
+例えば、「千と千尋の神隠し」は、不思議な世界の独特な登場人物を描いています。
+And it has many different themes such as courage, joy and fear.
+そして、勇気、喜び、恐れなど、さまざまなテーマを持っています。
+People love the characters because they are such attractive characters with a variety of emotions!
+このようなさまざまな感情を持った魅力的な登場人物なので、人々はそれらの登場人物を愛するのです！
+Mr. Sato: Thank you, Akira.
+佐藤先生: ありがとう、アキラ。
+Great job!
+よくできました！
+Everyone, do you have any questions?
+みなさん、何か質問はありますか。
+Mika: Yes.
+ミカ: はい。
+I see the differences between the themes of Disney and Ghibli, but I think there are some similar stories, too.
+ディズニーとジブリのテーマの違いはわかりますが、似たような話もあると思います。
+For example, Spirited Away and Alice in Wonderland are similar.
+例えば、「千と千尋の神隠し」と「ふしぎの国のアリス」は似ています。
+Kathy: I agree.
+キャシー: 私も同意します。
+Both of the movies have a young girl as the main character.
+どちらの映画も主人公は幼い少女です。
+Both movies have some scary scenes and both main characters experience strange events.
+どちらの映画にも怖いシーンがいくつかあり、どちらの主人公も奇妙な出来事を経験しています。
+Akira: That's true.
+アキラ: そうですね。
+But there is a big difference.
+しかし、大きな違いがあります。
+Chihiro, the heroine of Spirited Away, is often confused and scared.
+「千と千尋の神隠し」のヒロインである千尋は、よく混乱して怖がります。
+On the other hand, Alice is always curious and continues her adventures without fear.
+一方、アリスはいつも好奇心旺盛で、恐れることなく冒険を続けています。
+Mr. Sato: That's an interesting point of view, Akira.
+佐藤先生: それは興味深い見方ですね、アキラ。
+Thank you, everyone.
+みんな、ありがとう。
+We'll continue the discussion in the next class.
+次の授業で議論を続けます。
+I'm looking forward to seeing you next week!
+来週会うのを楽しみにしています！
+
+【Lesson 7-1】
+Mrs. Baker: Have you finished eating yet?
+ベイカー夫人: もう食べ終わったの？
+Yumi: Yes, I have.
+ユミ: はい。
+Mrs. Baker: Would you like another sandwich?
+ベイカー夫人: サンドウィッチをもう1ついかが？
+Yumi: No thanks, Mrs. Baker.
+ユミ: いいえ、結構です、ベイカーさん。
+Yumi: I've already had two.
+ユミ: もう2ついただきました。
+Yumi: They were great, but I'm completely full.
+ユミ: とてもおいしかったです。でも、すっかりお腹いっぱいです。
+Mrs. Baker: Oh, that's too bad ....
+ベイカー夫人: あら、それは残念ね…。
+Mrs. Baker: I've just baked an apple pie.
+ベイカー夫人: ちょうどアップルパイを焼いたところなのよ。
+Yumi: Really? I thought something smelled delicious!
+ユミ: 本当ですか？ 何かいい匂いがすると思ったんです！
+Don't worry -- I always have room for dessert!
+大丈夫です、いつもデザートは別腹ですから！
+Shall I clear the dishes?
+お皿を片付けましょうか？
+Mrs. Baker: Yes, please. Thank you, Yumi.
+ベイカー夫人: ええ、お願い。ありがとう、ユミ。
+
+【Lesson 5-1】
+Mrs. Baker: Welcome to New York, Yumi!
+ベーカー夫人：ニューヨークへようこそ、ユミ！
+Yumi: I'm so happy to meet you!
+ユミ：お会いできてとても嬉しいです！
+Mrs. Baker: Are you tired?
+ベーカー夫人：疲れていませんか？
+Yumi: No, I'm not. I like flying. Seeing the view from the window is fun.
+ユミ：いいえ、疲れていません。飛行機に乗るのが好きなんです。窓からの景色を見るのは楽しいです。
+Mr. Baker: We enjoy flying, too. Traveling is our favorite pastime.
+ベーカー氏：私たちも飛行機に乗るのが好きですよ。旅行は私たちのお気に入りの娯楽です。
+Mrs. Baker: Are you hungry, Yumi?
+ベーカー夫人：お腹は空いていますか、ユミ？
+Yumi: Well ..., a little.
+ユミ：ええと…、少し。
+Mr. Baker: OK. Let's have lunch before leaving the airport. Eating well is always important.
+ベーカー氏：わかりました。空港を出る前に昼食をとりましょう。しっかり食べることは常に大切ですからね。
+Swimming is fun.
+泳ぐことは楽しい。
+Getting daily exercise is a good habit.
+毎日運動することは良い習慣です。
+My father's favorite pastime is playing golf.
+父のお気に入りの娯楽はゴルフをすることです。
+My mother's job is teaching tennis.
+母の仕事はテニスを教えることです。
+Chris enjoys studying math.
+クリスは数学の勉強を楽しみます。
+The teacher finished talking and we started the class.
+先生が話し終えて、私たちは授業を始めました。
+Patrick stopped writing and put his pen on the desk.
+パトリックは書くのをやめ、ペンを机の上に置きました。
+After the test, he left the classroom without saying a word.
+テストの後、彼は一言も言わずに教室を出ました。
+Don't worry about making mistakes.
+間違えることを恐れないでください。
+
+【Lesson 5-2】
+Mrs. Baker: This is Carlos, our neighbor.
+ベーカー夫人：こちらはご近所のカルロスよ。
+Carlos: Nice to meet you, Yumi.
+カルロス：はじめまして、ユミ。
+Yumi: Hello, Carlos! Oh, are you cooking?
+ユミ：こんにちは、カルロス！あっ、料理をしているの？
+Carlos: Yes, I'm cooking macaroni and cheese.
+カルロス：うん、マカロニ・アンド・チーズを作っているんだ。
+Mrs. Baker: Carlos is very good at cooking.
+ベーカー夫人：カルロスは料理がとても上手なのよ。
+Carlos: I began cooking when I was in elementary school. I hope to be a chef in the future ..., or a soccer player!
+カルロス：小学生の時に料理を始めたんだ。将来はシェフになりたいな…それかサッカー選手！
+Yumi: Well, Carlos, I can't promise to play soccer with you, but I love cooking.
+ユミ：ええと、カルロス、一緒にサッカーをする約束はできないけど、私は料理が大好きだよ。
+Carlos: Maybe we can cook together. Can you teach me your hometown recipes?
+カルロス：たぶん僕たち一緒に料理できるね。君の地元のレシピを教えてくれる？
+Yumi: Sure! I'm looking forward to cooking with you.
+ユミ：もちろん！一緒に料理するのを楽しみにしているわ。
+We began eating lunch at twelve o'clock.
+私たちは12時に昼食を食べ始めました。
+My father enjoyed watching rugby games on TV after lunch.
+父は昼食後、テレビでラグビーの試合を見て楽しみました。
+I want to eat fried noodles today.
+私は今日、焼きそば（炒め麺）を食べたいです。
+Tom doesn't remember meeting Mary in the cafeteria before.
+トムは以前カフェテリアでメアリーに会ったことを覚えていません。
+Please remember to meet me in the cafeteria at noon tomorrow.
+明日の正午にカフェテリアで私と会うことを覚えておいてください。
+Mike is good at folding paper cranes.
+マイクは折り鶴を折るのが得意です。
+Alison was tired of staying home every day.
+アリソンは毎日家にいることにうんざりしていました。
+I am looking forward to seeing you soon.
+あなたにすぐにお会いできるのを楽しみにしています。
+Would you mind opening the window?
+窓を開けていただけませんか？
+
+【Lesson 7-2】
+Kevin: I've never been to Japan, but I've heard that Kyoto is a very interesting city. Have you ever been to Kyoto?
+ケビン：僕は日本に行ったことがないけど、京都はとても面白い都市だと聞いたことがあるよ。京都に行ったことはある？
+Yumi: Yes, I have. I've visited many famous places there. Here, I'll show you some pictures. They were taken a few years ago on my elementary school trip.
+ユミ：はい、あります。そこでたくさんの有名な場所を訪れました。ほら、いくつか写真を見せてあげるね。これは数年前、小学校の修学旅行で撮られたものだよ。
+Kevin: Wow! What's this golden building?
+ケビン：うわあ！この金色の建物は何？
+Yumi: That's Kinkakuji Temple. It's one of the most beautiful temples in Japan. It was originally built more than 600 years ago.
+ユミ：それは金閣寺だよ。日本で最も美しいお寺の一つなんだ。元々は600年以上前に建てられたんだよ。
+Kevin: What do you mean, "originally"?
+ケビン：「元々は」ってどういう意味？
+Yumi: It burned down in 1950.
+ユミ：1950年に全焼してしまったの。
+I have seen that movie before.
+私は以前その映画を見たことがあります。
+My parents have visited France twice.
+私の両親はフランスを2回訪れたことがあります。
+My dad has talked with that famous dancer.
+私の父はあの有名なダンサーと話したことがあります。
+My brother has never traveled by plane in his life.
+兄（弟）はこれまでの人生で一度も飛行機で旅行したことがありません。
+Have you ever traveled on a ship? Yes, I have. / No, never.
+船で旅行したことはありますか？ はい、あります。 / いいえ、一度もありません。
+How often have you been to Hawaii? I have been there four times.
+何回ハワイに行ったことがありますか？ 4回行ったことがあります。
+How many times have you traveled abroad? Only once.
+何回海外旅行をしたことがありますか？ 1回だけです。
+
+【Lesson 7-3】
+Kevin: So, how is Karen, Yumi? I haven't seen her since last spring.
+ケビン：それで、カレンはどうしてる、ユミ？ 去年の春から彼女に会っていないんだ。
+Yumi: She's great. She's at a summer camp right now.
+ユミ：彼女は元気だよ。今はサマーキャンプに行っているの。
+Kevin: That's nice. Have you been friends with her for a long time?
+ケビン：それはいいね。彼女とは長い間友達なの？
+Yumi: Yes, I have. I first met her when I moved to San Francisco. She was so kind, and she taught me a lot of English.
+ユミ：うん。私がサンフランシスコに引っ越した時に初めて彼女に会ったの。彼女はとても親切で、私にたくさんの英語を教えてくれたわ。
+Kevin: Well, your English is excellent now! How long have you studied it?
+ケビン：へえ、君の英語は今は素晴らしいよ！どのくらい英語を勉強しているの？
+Yumi: I've studied English since I was eight years old, but I still make some mistakes.
+ユミ：8歳の時から英語を勉強しているけど、まだいくつか間違えちゃうの。
+Kevin: Don't worry about it! Practice makes perfect!
+ケビン：心配しなくていいよ！習うより慣れろ（練習あるのみ）だよ！
+David has lived in Tokyo for two years.
+デビッドは東京に2年間住んでいます。
+He and I have known each other since last year.
+彼と私は去年からの知り合いです。
+We have been in the same class for six months.
+私たちは6ヶ月間同じクラスにいます。
+David hasn't seen his friends in the US for a long time.
+デビッドはアメリカの友達に長い間会っていません。
+Have you been busy since you came to Tokyo? Yes, I have.
+東京に来てからずっと忙しいですか？ はい、忙しいです。
+How long have you lived in this city? For two years.
+どのくらいこの街に住んでいますか？ 2年間です。
+How long has David been famous in Japan? He has been famous since he won the dance competition.
+デビッドはどのくらいの間、日本で有名ですか？ 彼はダンスの大会で優勝して以来ずっと有名です。
+
+【Lesson 7-4】
+Mr. Baker: Hi! What have you been doing?
+ベーカー氏：やあ！何をしていたんだい？
+Yumi: We've been talking about Kyoto and San Francisco. I'm showing him some photos of sightseeing spots in Japan.
+ユミ：私たちは京都とサンフランシスコについて話していました。彼に日本の観光スポットの写真をいくつか見せているところです。
+Mr. Baker: How nice!
+ベーカー氏：それはいいね！
+Kevin: Have you had lunch yet?
+ケビン：もう昼食は食べた？
+Mr. Baker: No, I haven't. I'll have it later. I have to finish cleaning up the garage.
+ベーカー氏：いや、まだだ。後で食べるよ。ガレージの片付けを終わらせないといけないんだ。
+Kevin: How long have you been doing that?
+ケビン：どのくらいそれをやっているの？
+Mr. Baker: Since this morning! It's a big job! There is so much garbage to take out. I have just got some more garbage bags.
+ベーカー氏：今朝からずっとだよ！大仕事なんだ！出すゴミがとてもたくさんあってね。ちょうどゴミ袋をもう少し取ってきたところなんだ。
+Kevin: Good luck! Or do you need help?
+ケビン：頑張って！それとも手伝いが必要？
+I have been making a poster for the school festival since this morning.
+私は今朝からずっと文化祭のポスターを作っています。
+Ken has been surfing the Internet for an hour.
+ケンは1時間ずっとインターネットを見ています。
+Have you been studying during the break? Yes, I have.
+休憩中ずっと勉強していましたか？ はい、していました。
+How long have you been waiting for your teacher? For about forty minutes.
+どのくらい先生を待っていますか？ 約40分間です。
+
+【Lesson 11-1】
+Carlos: Yumi, don't you speak Chinese?
+カルロス：ユミ、中国語は話さないの？
+Yumi: No, I don't. It's difficult for me to speak Chinese, but I can understand written Chinese a little. Japanese and Chinese use a lot of the same characters.
+ユミ：うん、話さないよ。私が中国語を話すのは難しいけど、書かれた中国語なら少し理解できるの。日本語と中国語は同じ文字（漢字）をたくさん使うから。
+Carlos: Is it hard to remember all those characters?
+カルロス：その文字を全部覚えるのは大変なの？
+Yumi: Yes, it is. There are thousands of characters. We also use Japanese characters called hiragana and katakana.
+ユミ：うん、大変だよ。何千もの文字があるの。私たちはひらがなやカタカナと呼ばれる日本の文字も使うんだ。
+Carlos: That's interesting. My teacher told me to do a school project about other languages. Can you help me?
+カルロス：それは面白いね。先生に他の言語についての学校の課題をやるように言われたんだ。手伝ってくれる？
+Yumi: Sure.
+ユミ：もちろん。
+It is difficult to get up early every morning.
+毎朝早起きすることは難しい。
+It is important to prepare for an earthquake.
+地震に備えることは重要です。
+It will be a lot of fun to ride the roller coaster tomorrow.
+明日ジェットコースターに乗るのはとても楽しいでしょう。
+It is difficult for me to explain my thoughts in English.
+私が自分の考えを英語で説明するのは難しいです。
+It isn't necessary for you to write the book report now.
+あなたが今、読書感想文を書く必要はありません。
+I want you to clean the living room while I'm out.
+私の外出中に、あなたにリビングルームを掃除してほしいです。
+My mother told me to share the cake with my brother.
+母は私に、兄（弟）とケーキを分けるように言いました。
+I had a toothache. My mother advised me to see the dentist.
+私は歯痛がありました。母は私に歯医者に行くように勧めました。
+
+【Lesson 11-2】
+Yumi: I spilled tea on your blanket. I tried to clean it, but I can't get rid of the stain. I don't know what to do. I'm sorry.
+ユミ：あなたの毛布にお茶をこぼしてしまいました。きれいにしようとしたのですが、染みが取れません。どうすればいいかわかりません。ごめんなさい。
+Mrs. Baker: Never mind. Let's put it in the washing machine. I'll show you how to use it.
+ベーカー夫人：気にしないで。洗濯機に入れましょう。使い方を教えてあげるわ。
+Mrs. Baker: I usually put in the laundry detergent first. Now, put in the blanket. Then, choose the temperature and water level.
+ベーカー夫人：私はたいてい最初に洗濯洗剤を入れるの。さあ、毛布を入れて。それから、温度と水量を選ぶのよ。
+Mrs. Baker: Next, set the wash cycle here. Finally, close the lid and push this button to start the machine.
+ベーカー夫人：次に、ここで洗濯コースを設定して。最後に、蓋を閉めてこのボタンを押すと洗濯機が動くわ。
+Yumi: Thank you, Mrs. Baker.
+ユミ：ありがとうございます、ベーカーさん。
+Mrs. Baker: No problem. Now, I'll teach you how to use the dryer.
+ベーカー夫人：どういたしまして。さあ、次は乾燥機の使い方を教えてあげるわね。
+Have you decided what to do during the summer vacation?
+夏休み中に何をするか決めましたか？
+I'm not sure who to ask about the hotels in London.
+ロンドンのホテルについて誰に聞けばいいのかよくわかりません。
+We discussed where to go on our vacation.
+私たちは休暇でどこへ行くか話し合いました。
+Juliet is wondering when to buy the plane tickets.
+ジュリエットはいつ航空券を買うべきか迷っています。
+I don't know how to pronounce this word.
+私はこの単語をどう発音するのかわかりません。
+She is thinking about which museums to visit in England.
+彼女はイギリスでどの博物館を訪れるべきか考えています。
+I'm lost. Could you tell me how to get to the hotel?
+道に迷いました。ホテルへの行き方を教えていただけませんか？
+I asked Mr. Jones what to do in London.
+私はジョーンズ氏にロンドンで何をするべきか尋ねました。
+
+【Lesson 11-3】
+Clerk: Hello, can I help you?
+店員：いらっしゃいませ、何かお探しですか？
+Yumi: Hi. I'm looking for a backpack.
+ユミ：こんにちは。バックパックを探しています。
+Clerk: This white bag with the flower pattern is very popular among young girls.
+店員：この花柄の白いバッグは若い女の子たちの間でとても人気がありますよ。
+Yumi: I don't think it's strong enough to protect my things. And I prefer a simpler design.
+ユミ：私の持ち物を守るのに十分な丈夫さではないと思います。それに、私はもっとシンプルなデザインの方が好きです。
+Clerk: How about this black one? It's simple and stylish.
+店員：こちらの黒いものはいかがですか？シンプルでスタイリッシュですよ。
+Yumi: Can I try it on?
+ユミ：背負ってみてもいいですか？
+Clerk: Sure. It's the largest bag we have.
+店員：もちろん。当店にある一番大きなバッグです。
+Yumi: Hmm, this is too large for me to carry on my back.
+ユミ：うーん、これは私が背負って運ぶには大きすぎます。
+Clerk: How about this blue one with the large pocket?
+店員：大きなポケットが付いたこちらの青いものはいかがですか？
+Yumi: Oh, this is just right. It is big enough to put my textbooks in.
+ユミ：あっ、これはちょうどいいです。教科書を入れるのに十分な大きさです。
+Betty was too shy to talk to the teacher.
+ベティは恥ずかしがり屋すぎて、先生に話しかけることができませんでした。
+She was too nervous to ask a question.
+彼女は緊張しすぎて質問することができませんでした。
+The teacher spoke too fast for her to understand.
+先生は早口すぎて、彼女は理解できませんでした。
+The homework was too difficult for her to finish in a day.
+その宿題は難しすぎて、彼女は1日で終わらせることができませんでした。
+This tea is so hot that I can't drink it.
+このお茶はとても熱くて私には飲めません。
+The traffic was so busy that I couldn't be in time for the class.
+道がとても混んでいて、私は授業に間に合いませんでした。
+My little brother is old enough to walk to our grandparents' house.
+私の幼い弟は、祖父母の家まで歩いて行けるくらいの年齢です。
+I left home early enough to be in time for school.
+私は学校に間に合うのに十分なほど早く家を出ました。
+This bag isn't big enough for me to pack all the clothes I need for travel.
+このバッグは、私が旅行に必要な服をすべて詰めるには十分な大きさがありません。
+
+【Lesson 11-4】
+Yumi: I'm sorry, but I don't want any breakfast this morning. May I have a glass of water?
+ユミ：ごめんなさい、今朝は朝食を全く食べたくありません。お水を一杯いただけますか？
+Mrs. Baker: What's wrong? Are you feeling OK?
+ベーカー夫人：どうしたの？ 気分は大丈夫？
+Yumi: I have a headache -- and maybe a little chill.
+ユミ：頭痛がして…それに少し寒気もするかもしれません。
+Kevin: Oh, no. I think you've caught a cold.
+ケビン：なんてことだ。風邪をひいたんだと思うよ。
+Mrs. Baker: Do you want some medicine?
+ベーカー夫人：お薬はいる？
+Yumi: No, thank you. I think I just need to stay in my room and rest for a while.
+ユミ：いいえ、結構です。ただ部屋にいてしばらく休む必要があると思います。
+Mrs. Baker: OK. Let me know if you need anything else. I'll make you chicken soup.
+ベーカー夫人：わかったわ。他に何か必要なものがあれば教えてね。チキンスープを作ってあげるわ。
+Kevin: Mom's soup will make you feel better, Yumi. I'll help you cook, Mom.
+ケビン：母さんのスープを飲めば気分が良くなるよ、ユミ。料理を手伝うよ、母さん。
+My mother makes me eat fresh yogurt every morning.
+母は毎朝私に新鮮なヨーグルトを食べさせます。
+My brother's joke made everyone laugh.
+兄（弟）の冗談はみんなを笑わせました。
+Our father sometimes lets us stay up late.
+私たちの父は時々私たちに夜更かしをさせてくれます。
+Please let me know when you need any help.
+何か助けが必要な時は私に知らせてください。
+My sister had the server bring another glass of water.
+姉（妹）はサーバー（店員）にもう一杯水を持ってきてもらいました。
+  </textarea>
+
+<script>
+  const rawData = document.getElementById('rawData').value;
+  const contentDiv = document.getElementById('content');
+  const playBtn = document.getElementById('playBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const englishOnlyCheckbox = document.getElementById('englishOnly');
+  const speedSelect = document.getElementById('speed');
+  
+  // 音声選択用のプルダウン
+  const enVoiceSelect = document.getElementById('enVoiceSelect');
+  const jaVoiceSelect = document.getElementById('jaVoiceSelect');
+
+  let isPlaying = false;
+  let currentIndex = 0;
+  const lineData = [];
+  let availableVoices = [];
+
+  function isJapanese(text) {
+    return /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
+  }
+
+  // テキストのパース
+  const lines = rawData.split('\n').map(l => l.trim());
+  lines.forEach((line) => {
+    if (!line) return;
+    const p = document.createElement('div');
+    p.className = 'line';
+    p.textContent = line;
+
+    if (/^【.*】$/.test(line) || /^①$|^②$|^③$|^④$/.test(line)) {
+      p.style.fontWeight = 'bold';
+      p.style.marginTop = '20px';
+      p.style.fontSize = '1.2em';
+      contentDiv.appendChild(p);
+      return; 
+    }
+
+    if (isJapanese(line)) {
+      p.classList.add('japanese');
+    } else {
+      p.classList.add('english');
+    }
+
+    contentDiv.appendChild(p);
+    lineData.push({ text: line, el: p, isJp: isJapanese(line) });
+  });
+
+  // デバイスの音声リストを取得してプルダウンにセットする関数
+  function populateVoiceList() {
+    availableVoices = window.speechSynthesis.getVoices();
+    enVoiceSelect.innerHTML = '';
+    jaVoiceSelect.innerHTML = '';
+
+    availableVoices.forEach((voice, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = `${voice.name} (${voice.lang})`;
+
+      // 英語の音声
+      if (voice.lang.startsWith('en')) {
+        enVoiceSelect.appendChild(option);
+      }
+      // 日本語の音声
+      if (voice.lang.startsWith('ja')) {
+        jaVoiceSelect.appendChild(option);
+      }
+    });
+
+    // 綺麗な声（GoogleやMicrosoftのオンライン音声）を優先的にデフォルト選択する
+    selectBestVoice(enVoiceSelect, ['Natural', 'Online', 'Google UK', 'Google US']);
+    selectBestVoice(jaVoiceSelect, ['Nanami', 'Keita', 'Natural', 'Online', 'Google 日本語']);
+  }
+
+  // 優先したい音声名が含まれていれば自動選択
+  function selectBestVoice(selectElement, preferredNames) {
+    const options = Array.from(selectElement.options);
+    for (let name of preferredNames) {
+      const match = options.find(opt => opt.textContent.includes(name));
+      if (match) {
+        selectElement.value = match.value;
+        return;
+      }
+    }
+  }
+
+  // ブラウザの音声リストがロードされたら実行
+  populateVoiceList();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoiceList;
+  }
+
+  function speakNext() {
+    if (!isPlaying || currentIndex >= lineData.length) {
+      isPlaying = false;
+      playBtn.textContent = '▶ 再生';
+      return;
+    }
+
+    const currentItem = lineData[currentIndex];
+
+    if (englishOnlyCheckbox.checked && currentItem.isJp) {
+      currentIndex++;
+      speakNext();
+      return;
+    }
+
+    lineData.forEach(item => item.el.classList.remove('playing'));
+    currentItem.el.classList.add('playing');
+    currentItem.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    const utterance = new SpeechSynthesisUtterance(currentItem.text);
+    utterance.rate = parseFloat(speedSelect.value);
+
+    // 選択された音声を適用する
+    if (currentItem.isJp && jaVoiceSelect.value) {
+      utterance.voice = availableVoices[jaVoiceSelect.value];
+    } else if (!currentItem.isJp && enVoiceSelect.value) {
+      utterance.voice = availableVoices[enVoiceSelect.value];
+    } else {
+      utterance.lang = currentItem.isJp ? 'ja-JP' : 'en-US';
+    }
+
+    utterance.onend = () => {
+      currentIndex++;
+      speakNext();
+    };
+
+    utterance.onerror = (e) => {
+      console.warn("読み上げエラー:", e);
+      currentIndex++;
+      speakNext();
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (isPlaying) return;
+    window.speechSynthesis.cancel();
+    isPlaying = true;
+    playBtn.textContent = '再生中...';
+    if (currentIndex >= lineData.length) currentIndex = 0;
+    speakNext();
+  });
+
+  stopBtn.addEventListener('click', () => {
+    isPlaying = false;
+    window.speechSynthesis.cancel();
+    playBtn.textContent = '▶ 再生';
+    lineData.forEach(item => item.el.classList.remove('playing'));
+  });
+
+  window.addEventListener('beforeunload', () => {
+    window.speechSynthesis.cancel();
+  });
+
+</script>
+</body>
+</html>
