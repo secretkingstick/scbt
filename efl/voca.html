@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語学習リスニングプレーヤー（EFL-M2-2 VOCA）</title>
+<style>
+  body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+  }
+  #header {
+    position: sticky;
+    top: 0;
+    background-color: #ffffff;
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+  }
+  button {
+    font-size: 14px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+  #playBtn {
+    background-color: #4CAF50;
+    color: white;
+  }
+  #playBtn:hover { background-color: #45a049; }
+  #stopBtn {
+    background-color: #f44336;
+    color: white;
+  }
+  #stopBtn:hover { background-color: #da190b; }
+  .controls-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    background: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  select {
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    max-width: 150px;
+  }
+  
+  /* 目次メニューのスタイル */
+  #toc {
+    max-width: 800px;
+    margin: 15px auto 0;
+    padding: 15px 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .toc-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #e3f2fd;
+    color: #1976d2;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #bbdefb;
+  }
+  .toc-btn:hover {
+    background: #1976d2;
+    color: white;
+  }
+
+  #content {
+    max-width: 800px;
+    margin: 15px auto 20px;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+  }
+  .line {
+    padding: 8px 10px;
+    margin: 4px 0;
+    border-radius: 4px;
+    line-height: 1.6;
+    transition: background-color 0.3s;
+  }
+  .line.japanese {
+    color: #666;
+    font-size: 0.95em;
+  }
+  .line.english {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-bottom: 15px; 
+  }
+  .playing {
+    background-color: #fff3e0 !important;
+    border-left: 4px solid #ff9800;
+    font-weight: bold;
+  }
+  
+  /* ジャンプした時に固定ヘッダーの下に隠れないようにする余白 */
+  .section-header {
+    scroll-margin-top: 100px;
+  }
+</style>
+</head>
+<body>
+
+  <div id="header">
+    <button id="playBtn">▶ 再生</button>
+    <button id="stopBtn">■ 停止</button>
+    <div class="controls-group">
+      <label><input type="checkbox" id="englishOnly"> 英語のみ</label>
+    </div>
+    <div class="controls-group">
+      <label>速度:</label>
+      <select id="speed">
+        <option value="0.7">0.7x</option>
+        <option value="0.9">0.9x</option>
+        <option value="1.0" selected>1.0x</option>
+        <option value="1.2">1.2x</option>
+      </select>
+    </div>
+    <div class="controls-group">
+      <label>英語の声:</label>
+      <select id="enVoiceSelect"></select>
+    </div>
+    <div class="controls-group">
+      <label>日本語の声:</label>
+      <select id="jaVoiceSelect"></select>
+    </div>
+  </div>
+
+  <!-- 目次エリア -->
+  <div id="toc"></div>
+
+  <!-- 本文エリア -->
+  <div id="content"></div>
+
+  <!-- ここに読み上げるテキストデータを格納します -->
+  <textarea id="rawData" style="display:none;">
+【宿泊施設の種類 / Hotel accommodations】
+1. ホテル
+a hotel
+2. ユースホステル
+a youth hostel
+3. B&B（朝食付民宿）
+a bed and breakfast
+4. 民泊・短期賃貸
+a short-term vacation rental
+5. 旅館
+a Japanese-style inn
+
+【ホテルの施設 / Hotel facilities】
+6. フィットネスセンター
+a fitness center
+7. プール
+a pool
+8. サウナ
+a sauna
+9. ギフトショップ
+a gift shop
+10. レストラン
+a restaurant
+11. ビジネスセンター
+a business center
+12. コンシェルジュ
+a concierge
+
+【ホテルのアメニティ / Hotel Amenities】
+13. 追加のタオル
+extra towels
+14. たくさんのハンガー
+lots of hangers
+15. スカート用ハンガー
+skirt hangers
+16. バスローブ
+a bathrobe
+17. ヘアドライヤー
+a hair dryer
+18. 金庫
+a safe
+19. ミニバー
+a minibar
+20. アイロンとアイロン台
+an iron and ironing board
+
+【部屋のタイプ / Hotel Rooms】
+21. ダブルルーム
+a double room
+22. シングルルーム
+a single room
+23. スイートルーム
+a suite
+
+【ベッドのタイプ / Bed Types】
+24. ツインベッド
+a twin bed
+25. クイーンサイズベッド
+a queen-size bed
+26. キングサイズベッド
+a king-size bed
+27. 折りたたみ式ベッド（エキストラベッド）
+a rollaway bed
+
+【身だしなみ・ケア用品 / Personal Care (用具)】
+28. くし
+a comb
+29. ヘアブラシ
+a brush
+30. 歯ブラシ
+a toothbrush
+31. 爪切り
+a nail clipper
+32. 爪やすり
+a nail file
+33. かみそり
+a razor
+
+【身だしなみ・ケア用品 / Personal Care (製品・化粧品)】
+34. 石鹸
+soap
+35. 制汗剤・デオドラント
+deodorant
+36. シェービングクリーム
+shaving cream
+37. アフターシェーブローション
+aftershave
+38. 歯磨き粉
+toothpaste
+39. シャンプー
+shampoo
+40. ヘアスプレー
+hairspray
+41. ヘアジェル
+hair gel
+42. ハンド＆ボディローション
+hand and body lotion
+43. デンタルフロス
+dental floss
+44. 日焼け止め
+sunscreen
+45. マスカラ
+mascara
+46. 口紅
+lipstick
+47. アイシャドウ
+eyeshadow
+48. フェイスパウダー
+face powder
+49. マニキュア（ネイルポリッシュ）
+nail polish
+
+【美容・サロンケア関連表現】
+50. 散髪
+a haircut
+51. 爪の手入れ（マニキュア）
+a manicure
+52. 足爪の手入れ（ペディキュア）
+a pedicure
+53. 手足両方の手入れ（マニペディ）
+a mani-pedi
+54. 顔剃り（シェービング）
+a shave
+55. 美顔（フェイシャルトリートメント）
+a facial
+56. マッサージ
+a massage
+  </textarea>
+
+<script>
+  const rawData = document.getElementById('rawData').value;
+  const contentDiv = document.getElementById('content');
+  const tocDiv = document.getElementById('toc');
+  const playBtn = document.getElementById('playBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const englishOnlyCheckbox = document.getElementById('englishOnly');
+  const speedSelect = document.getElementById('speed');
+  
+  const enVoiceSelect = document.getElementById('enVoiceSelect');
+  const jaVoiceSelect = document.getElementById('jaVoiceSelect');
+
+  let isPlaying = false;
+  let currentIndex = 0;
+  const lineData = [];
+  let availableVoices = [];
+  let sectionIndex = 0;
+
+  function isJapanese(text) {
+    return /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
+  }
+
+  const lines = rawData.split('\n').map(l => l.trim());
+  lines.forEach((line) => {
+    if (!line) return;
+    const p = document.createElement('div');
+    p.className = 'line';
+    p.textContent = line;
+
+    if (/^【.*】$/.test(line)) {
+      const sId = 'section-' + sectionIndex;
+      p.id = sId;
+      p.className += ' section-header'; 
+      p.style.fontWeight = 'bold';
+      p.style.marginTop = '20px';
+      p.style.fontSize = '1.2em';
+      
+      const tocBtn = document.createElement('a');
+      tocBtn.className = 'toc-btn';
+      tocBtn.textContent = line.replace(/【|】/g, '').split(' / ')[0]; 
+      tocBtn.onclick = () => {
+        document.getElementById(sId).scrollIntoView({ behavior: 'smooth' });
+        const targetIndex = lineData.findIndex(item => item.el === p);
+        if (targetIndex !== -1) {
+            currentIndex = targetIndex;
+            if (isPlaying) {
+                window.speechSynthesis.cancel();
+                speakNext();
+            } else {
+                lineData.forEach(item => item.el.classList.remove('playing'));
+                p.classList.add('playing');
+            }
+        }
+      };
+      tocDiv.appendChild(tocBtn);
+      sectionIndex++;
+      
+      contentDiv.appendChild(p);
+      lineData.push({ text: line, el: p, isJp: true }); 
+      return; 
+    }
+
+    if (isJapanese(line)) {
+      p.classList.add('japanese');
+    } else {
+      p.classList.add('english');
+    }
+
+    contentDiv.appendChild(p);
+    lineData.push({ text: line, el: p, isJp: isJapanese(line) });
+  });
+
+  if (sectionIndex === 0) {
+      tocDiv.style.display = 'none';
+  }
+
+  function populateVoiceList() {
+    availableVoices = window.speechSynthesis.getVoices();
+    enVoiceSelect.innerHTML = '';
+    jaVoiceSelect.innerHTML = '';
+
+    availableVoices.forEach((voice, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = `${voice.name} (${voice.lang})`;
+
+      if (voice.lang.startsWith('en')) {
+        enVoiceSelect.appendChild(option);
+      }
+      if (voice.lang.startsWith('ja')) {
+        jaVoiceSelect.appendChild(option);
+      }
+    });
+
+    selectBestVoice(enVoiceSelect, ['Natural', 'Online', 'Google UK', 'Google US']);
+    selectBestVoice(jaVoiceSelect, ['Nanami', 'Keita', 'Natural', 'Online', 'Google 日本語']);
+  }
+
+  function selectBestVoice(selectElement, preferredNames) {
+    const options = Array.from(selectElement.options);
+    for (let name of preferredNames) {
+      const match = options.find(opt => opt.textContent.includes(name));
+      if (match) {
+        selectElement.value = match.value;
+        return;
+      }
+    }
+  }
+
+  populateVoiceList();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoiceList;
+  }
+
+  function speakNext() {
+    if (!isPlaying || currentIndex >= lineData.length) {
+      isPlaying = false;
+      playBtn.textContent = '▶ 再生';
+      return;
+    }
+
+    const currentItem = lineData[currentIndex];
+
+    if (/^【.*】$/.test(currentItem.text) || (englishOnlyCheckbox.checked && currentItem.isJp)) {
+      currentIndex++;
+      speakNext();
+      return;
+    }
+
+    lineData.forEach(item => item.el.classList.remove('playing'));
+    currentItem.el.classList.add('playing');
+    
+    currentItem.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    let textToSpeak = currentItem.text;
+    if (currentItem.isJp) {
+        textToSpeak = textToSpeak.replace(/^[0-9]+\.\s*/, '');
+    }
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.rate = parseFloat(speedSelect.value);
+
+    if (currentItem.isJp && jaVoiceSelect.value) {
+      utterance.voice = availableVoices[jaVoiceSelect.value];
+    } else if (!currentItem.isJp && enVoiceSelect.value) {
+      utterance.voice = availableVoices[enVoiceSelect.value];
+    } else {
+      utterance.lang = currentItem.isJp ? 'ja-JP' : 'en-US';
+    }
+
+    utterance.onend = () => {
+      currentIndex++;
+      speakNext();
+    };
+
+    utterance.onerror = (e) => {
+      console.warn("読み上げエラー:", e);
+      currentIndex++;
+      speakNext();
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (isPlaying) return;
+    window.speechSynthesis.cancel();
+    isPlaying = true;
+    playBtn.textContent = '再生中...';
+    if (currentIndex >= lineData.length) currentIndex = 0;
+    speakNext();
+  });
+
+  stopBtn.addEventListener('click', () => {
+    isPlaying = false;
+    window.speechSynthesis.cancel();
+    playBtn.textContent = '▶ 再生';
+    lineData.forEach(item => item.el.classList.remove('playing'));
+  });
+
+  window.addEventListener('beforeunload', () => {
+    window.speechSynthesis.cancel();
+  });
+
+</script>
+</body>
+</html>
+```<br>
+<br><details><summary>Follow-up Questions</summary>
+* Are there any specific words or phrases here that you'd like an explanation for regarding their usage?
+* Would you like me to create an HTML file for any other vocabulary lists?
+* Should I add a "Repeat List" toggle switch that loops the audio playback once it reaches the end?</details>
