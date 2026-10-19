@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語学習リスニングプレーヤー（NHK-202610）</title>
+<style>
+  body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+  }
+  #header {
+    position: sticky;
+    top: 0;
+    background-color: #ffffff;
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+  }
+  button {
+    font-size: 14px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+  #playBtn {
+    background-color: #4CAF50;
+    color: white;
+  }
+  #playBtn:hover { background-color: #45a049; }
+  #stopBtn {
+    background-color: #f44336;
+    color: white;
+  }
+  #stopBtn:hover { background-color: #da190b; }
+  .controls-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    background: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  select {
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    max-width: 150px;
+  }
+  
+  /* 目次メニューのスタイル */
+  #toc {
+    max-width: 800px;
+    margin: 15px auto 0;
+    padding: 15px 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .toc-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #e3f2fd;
+    color: #1976d2;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #bbdefb;
+  }
+  .toc-btn:hover {
+    background: #1976d2;
+    color: white;
+  }
+
+  #content {
+    max-width: 800px;
+    margin: 15px auto 20px;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+  }
+  .line {
+    padding: 8px 10px;
+    margin: 4px 0;
+    border-radius: 4px;
+    line-height: 1.6;
+    transition: background-color 0.3s;
+  }
+  /* 日本語が先になるので、マージン設定を入れ替えています */
+  .line.japanese {
+    color: #666;
+    font-size: 0.95em;
+  }
+  .line.english {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-bottom: 15px; /* 英語の後に余白をつける */
+  }
+  .playing {
+    background-color: #fff3e0 !important;
+    border-left: 4px solid #ff9800;
+    font-weight: bold;
+  }
+  
+  /* ジャンプした時に固定ヘッダーの下に隠れないようにする余白 */
+  .section-header {
+    scroll-margin-top: 100px;
+  }
+</style>
+</head>
+<body>
+
+  <div id="header">
+    <button id="playBtn">▶ 再生</button>
+    <button id="stopBtn">■ 停止</button>
+    <div class="controls-group">
+      <label><input type="checkbox" id="englishOnly"> 英語のみ</label>
+    </div>
+    <div class="controls-group">
+      <label>速度:</label>
+      <select id="speed">
+        <option value="0.7">0.7x</option>
+        <option value="0.9">0.9x</option>
+        <option value="1.0" selected>1.0x</option>
+        <option value="1.2">1.2x</option>
+      </select>
+    </div>
+    <div class="controls-group">
+      <label>英語の声:</label>
+      <select id="enVoiceSelect"></select>
+    </div>
+    <div class="controls-group">
+      <label>日本語の声:</label>
+      <select id="jaVoiceSelect"></select>
+    </div>
+  </div>
+
+  <!-- 目次エリア -->
+  <div id="toc"></div>
+
+  <!-- 本文エリア -->
+  <div id="content"></div>
+
+  <!-- ここに読み上げるテキストデータを格納します -->
+  <textarea id="rawData" style="display:none;">
+【NHK-202610】
+1. この食べ物は、ぼくをホームシックにさせるんだ。
+This snack makes me homesick.
+2. ぼくたちはそれを「漆塗り」って呼ぶよ。
+We call it urushi-nuri.
+3. ぼくは、いつもぼくの表現集を手もとに置いてるんだ。
+I always keep my phrasebook handy.
+4. "If you insist."って言ったよね。それ、どういう意味?
+You said, "If you insist." What do you mean?
+5. ドアは、鍵がかけられていたんです。
+The door was locked.
+6. 公園では、和式トイレはたくさん見られますよ。
+Many Japanese-style toilets are found in parks.
+7. そのトイレは、芸術家によってデザインされたんだ。
+That bathroom was designed by an artist.
+8. 本気なの?
+Are you serious?
+9. ぼくはわくわくしているよ。
+I'm excited.
+10. それはおどろきだね!
+That's surprising!
+11. わたしはそれに本当に感動したの。
+I was really moved by that.
+12. 冗談だよ。
+Just kidding.
+13. マグロは本当に大きな魚なんだ。
+Tuna are really big fish.
+14. 紙が必要だな。
+I need paper.
+15. 小さい魚の骨を食べる人たちもいます。
+Some people eat small fish bones.
+16. それは残念だね。
+I'm sorry to hear that.
+17. ここからそのパワースポットは、どのくらい遠いの?
+How far is the power spot from here?
+18. どのくらいの時間、僕たちは森にいればいいの?
+How long should we stay in the forest?
+19. だれといっしょに時間を過ごしてたの?
+Who did you spend time with?
+20. 伝わってる?
+Does that make sense?
+21. ほとんどすべてのお菓子に栗が入ってるよ。
+Almost all of the sweets have chestnuts.
+22. 別のお茶のお店に行ってみよう。
+Let's try another tea shop.
+23. いくらか試してみますか?
+Would you like to try some?
+24. あ、そうなんだね?
+Oh, you do?
+25. 君はどのくらい持ち上げられるの?
+How much can you lift?
+26. ぼくは現金をあまり持っていないんだ。
+I don't have much cash.
+27. 最近では、伝統的な活動を楽しむ機会がほとんどないね。
+These days, there are few chances to enjoy traditional activities.
+28. 甘いものが本当に大好きってことだよね?
+Do you mean you really love sweets?
+  </textarea>
+
+<script>
+  const rawData = document.getElementById('rawData').value;
+  const contentDiv = document.getElementById('content');
+  const tocDiv = document.getElementById('toc');
+  const playBtn = document.getElementById('playBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const englishOnlyCheckbox = document.getElementById('englishOnly');
+  const speedSelect = document.getElementById('speed');
+  
+  // 音声選択用のプルダウン
+  const enVoiceSelect = document.getElementById('enVoiceSelect');
+  const jaVoiceSelect = document.getElementById('jaVoiceSelect');
+
+  let isPlaying = false;
+  let currentIndex = 0;
+  const lineData = [];
+  let availableVoices = [];
+  let sectionIndex = 0;
+
+  function isJapanese(text) {
+    return /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
+  }
+
+  // テキストのパースと目次（ボタン）の生成
+  const lines = rawData.split('\n').map(l => l.trim());
+  lines.forEach((line) => {
+    if (!line) return;
+    const p = document.createElement('div');
+    p.className = 'line';
+    p.textContent = line;
+
+    // 【 】で囲まれた行を見出しとして扱う
+    if (/^【.*】$/.test(line)) {
+      const sId = 'section-' + sectionIndex;
+      p.id = sId;
+      p.className += ' section-header'; // スクロール位置調整用のクラス
+      p.style.fontWeight = 'bold';
+      p.style.marginTop = '20px';
+      p.style.fontSize = '1.2em';
+      
+      // 目次ボタンの作成
+      const tocBtn = document.createElement('a');
+      tocBtn.className = 'toc-btn';
+      tocBtn.textContent = line.replace(/【|】/g, ''); // 【 】を取り除いてスッキリ表示
+      tocBtn.onclick = () => {
+        // クリックされたら該当箇所へスムーズスクロール
+        document.getElementById(sId).scrollIntoView({ behavior: 'smooth' });
+        // その箇所から再生できるようにcurrentIndexを更新
+        const targetIndex = lineData.findIndex(item => item.el === p);
+        if (targetIndex !== -1) {
+            currentIndex = targetIndex;
+            // 再生中の場合は一度止めてからそこから再開、止まっていればハイライトだけ移動
+            if (isPlaying) {
+                window.speechSynthesis.cancel();
+                speakNext();
+            } else {
+                lineData.forEach(item => item.el.classList.remove('playing'));
+                p.classList.add('playing');
+            }
+        }
+      };
+      tocDiv.appendChild(tocBtn);
+      sectionIndex++;
+      
+      contentDiv.appendChild(p);
+      lineData.push({ text: line, el: p, isJp: true }); // 見出しは読まないか日本語扱い
+      return; 
+    }
+
+    if (/^①$\vert{}^②$|^③$\vert{}^④$/.test(line)) {
+      p.style.fontWeight = 'bold';
+      p.style.marginTop = '20px';
+      p.style.fontSize = '1.2em';
+      contentDiv.appendChild(p);
+      lineData.push({ text: line, el: p, isJp: true });
+      return;
+    }
+
+    if (isJapanese(line)) {
+      p.classList.add('japanese');
+    } else {
+      p.classList.add('english');
+    }
+
+    contentDiv.appendChild(p);
+    lineData.push({ text: line, el: p, isJp: isJapanese(line) });
+  });
+
+  // 目次がない場合は枠自体を非表示
+  if (sectionIndex === 0) {
+      tocDiv.style.display = 'none';
+  }
+
+  // デバイスの音声リストを取得してプルダウンにセットする関数
+  function populateVoiceList() {
+    availableVoices = window.speechSynthesis.getVoices();
+    enVoiceSelect.innerHTML = '';
+    jaVoiceSelect.innerHTML = '';
+
+    availableVoices.forEach((voice, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = `${voice.name} (${voice.lang})`;
+
+      if (voice.lang.startsWith('en')) {
+        enVoiceSelect.appendChild(option);
+      }
+      if (voice.lang.startsWith('ja')) {
+        jaVoiceSelect.appendChild(option);
+      }
+    });
+
+    selectBestVoice(enVoiceSelect, ['Natural', 'Online', 'Google UK', 'Google US']);
+    selectBestVoice(jaVoiceSelect, ['Nanami', 'Keita', 'Natural', 'Online', 'Google 日本語']);
+  }
+
+  function selectBestVoice(selectElement, preferredNames) {
+    const options = Array.from(selectElement.options);
+    for (let name of preferredNames) {
+      const match = options.find(opt => opt.textContent.includes(name));
+      if (match) {
+        selectElement.value = match.value;
+        return;
+      }
+    }
+  }
+
+  populateVoiceList();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoiceList;
+  }
+
+  function speakNext() {
+    if (!isPlaying || currentIndex >= lineData.length) {
+      isPlaying = false;
+      playBtn.textContent = '▶ 再生';
+      return;
+    }
+
+    const currentItem = lineData[currentIndex];
+
+    // 記号だけの行や「英語のみ」時のスキップ処理
+    if (/^【.*】$|^①$\vert{}^②$|^③$\vert{}^④$/.test(currentItem.text) || (englishOnlyCheckbox.checked && currentItem.isJp)) {
+      currentIndex++;
+      speakNext();
+      return;
+    }
+
+    lineData.forEach(item => item.el.classList.remove('playing'));
+    currentItem.el.classList.add('playing');
+    
+    // 現在の読み上げ行を画面中央付近に自動スクロール
+    currentItem.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // "1. " などの番号を読み上げの際に消す（表示は残す）ための処理
+    let textToSpeak = currentItem.text;
+    if (currentItem.isJp) {
+        textToSpeak = textToSpeak.replace(/^[0-9]+\.\s*/, '');
+    }
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.rate = parseFloat(speedSelect.value);
+
+    if (currentItem.isJp && jaVoiceSelect.value) {
+      utterance.voice = availableVoices[jaVoiceSelect.value];
+    } else if (!currentItem.isJp && enVoiceSelect.value) {
+      utterance.voice = availableVoices[enVoiceSelect.value];
+    } else {
+      utterance.lang = currentItem.isJp ? 'ja-JP' : 'en-US';
+    }
+
+    utterance.onend = () => {
+      currentIndex++;
+      speakNext();
+    };
+
+    utterance.onerror = (e) => {
+      console.warn("読み上げエラー:", e);
+      currentIndex++;
+      speakNext();
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (isPlaying) return;
+    window.speechSynthesis.cancel();
+    isPlaying = true;
+    playBtn.textContent = '再生中...';
+    if (currentIndex >= lineData.length) currentIndex = 0;
+    speakNext();
+  });
+
+  stopBtn.addEventListener('click', () => {
+    isPlaying = false;
+    window.speechSynthesis.cancel();
+    playBtn.textContent = '▶ 再生';
+    lineData.forEach(item => item.el.classList.remove('playing'));
+  });
+
+  window.addEventListener('beforeunload', () => {
+    window.speechSynthesis.cancel();
+  });
+
+</script>
+</body>
+</html>
+```<br>
+<br><details><summary>Follow-up Questions</summary>
+* Is there any specific background color or style change you would like to apply to the text or the layout?
+* Do you want me to add a loop toggle function to keep repeating the sentences automatically?
+* Are there any other specific lessons or datasets you would like converted to this format?</details>
