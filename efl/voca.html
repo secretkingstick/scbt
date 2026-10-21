@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>英語学習リスニングプレーヤー（EFL-M2-2 VOCA）</title>
+<title>英語学習リスニングプレーヤー（無限ループ機能付き）</title>
 <style>
   body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
@@ -59,7 +59,6 @@
     max-width: 150px;
   }
   
-  /* 目次メニューのスタイル */
   #toc {
     max-width: 800px;
     margin: 15px auto 0;
@@ -118,8 +117,6 @@
     border-left: 4px solid #ff9800;
     font-weight: bold;
   }
-  
-  /* ジャンプした時に固定ヘッダーの下に隠れないようにする余白 */
   .section-header {
     scroll-margin-top: 100px;
   }
@@ -132,6 +129,9 @@
     <button id="stopBtn">■ 停止</button>
     <div class="controls-group">
       <label><input type="checkbox" id="englishOnly"> 英語のみ</label>
+    </div>
+    <div class="controls-group">
+      <label><input type="checkbox" id="infiniteLoop" checked> 無限ループ</label>
     </div>
     <div class="controls-group">
       <label>速度:</label>
@@ -152,63 +152,60 @@
     </div>
   </div>
 
-  <!-- 目次エリア -->
   <div id="toc"></div>
-
-  <!-- 本文エリア -->
   <div id="content"></div>
 
-  <!-- ここに読み上げるテキストデータを格納します -->
   <textarea id="rawData" style="display:none;">
-    Writing
-    もし英語を勉強したら、世界中の人々と話します。
-    If I study English, I will talk with people all over the world.
-    もし世界中の人々と話したら、たくさんのことについて学びます。
-    If I talk with people all over the world, I will learn about many things.
-    もし多くのことについて学んだら、人々を助けるための良いアイデアを思いつきます。
-    If I learn about many things, I will think of good ideas to help people.
-    もし人々を助ける良いアイデアを思いついたら、大きな会社を始めます。
-    If I think of good ideas to help people, I will start a big company.
-    もし大きな会社を始めたら、たくさんのお金を稼ぎます。
-    If I start a big company, I will make a lot of money.
-    もしたくさんのお金を稼いだら、賢いロボットを作ります。
+    【Writing 英語のみ】
+    If I study English, I will talk to people all over the world.
+    If I talk to people all over the world, I will get good ideas.
+    If I get good ideas, I will start a new company.
+    If I start a new company, I will make a lot of money.
     If I make a lot of money, I will make a smart robot.
-    もし賢いロボットを作ったら、世界中の誰もがそれを使います。
-    If I make a smart robot, everyone in the world will use it.
-    もし世界中の誰もがそれを使ったら、私はとても有名になります。
-    If everyone in the world uses it, I will become very famous.
-    もし私がとても有名になったら、世界中の人々が私の言うことを聞きます。
-    If I become very famous, people all over the world will listen to me.
-    もし世界中の人々が私の言うことを聞いたら、私は世界を支配します！
-    If people all over the world listen to me, I will rule the world!
+    If I make a smart robot, it will help everyone.
+    If it helps everyone, I will become famous.
+    If I become famous, people will love me. 
+    If people love me, they will listen to me.
+    If they listen to me, I will rule the world! 
 
-    If I study English, I will talk with people all over the world.
-    If I talk with people all over the world, I will learn about many things.
-    If I learn about many things, I will think of good ideas to help people.
-    If I think of good ideas to help people, I will start a big company.
-    If I start a big company, I will make a lot of money.
-    If I make a lot of money, I will make a smart robot.
-    If I make a smart robot, everyone in the world will use it.
-    If everyone in the world uses it, I will become very famous.
-    If I become very famous, people all over the world will listen to me.
-    If people all over the world listen to me, I will rule the world!
+    【Writing 翻訳】
+    もし英語を勉強したら、私は世界中の人と話します。
+    If I study English, I will talk to people all over the world.   
+    もし世界中の人と話したら、良いアイデアが浮かびます。
+    If I talk to people all over the world, I will get good ideas.   
+    もし良いアイデアが浮かんだら、新しい会社を始めます。
+    If I get good ideas, I will start a new company.   
+    もし新しい会社を始めたら、たくさんのお金を稼ぎます。
+    If I start a new company, I will make a lot of money.   
+    もしお金をたくさん稼いだら、賢いロボットを作ります。
+    If I make a lot of money, I will make a smart robot.   
+    もし賢いロボットを作ったら、それはみんなを助けます。
+    If I make a smart robot, it will help everyone.   
+    もしそれがみんなを助けたら、私は有名になります。
+    If it helps everyone, I will become famous.   
+    もし私が有名になったら、人々は私を大好きになります。
+    If I become famous, people will love me.   
+    もし人々が私を大好きになったら、彼らは私の言うことを聞きます。
+    If people love me, they will listen to me.   
+    もし彼らが私の言うことを聞いたら、私は世界を支配します！
+    If they listen to me, I will rule the world! 
   
-    VOCA
-    【身だしなみ・ケア用品 / Personal Care (用具)】
-    28. くし
-    a comb
-    29. ヘアブラシ
-    a brush
-    30. 歯ブラシ
-    a toothbrush
-    31. 爪切り
-    a nail clipper
-    32. 爪やすり
-    a nail file
-    33. かみそり
-    a razor
+  【VOCA】
+  身だしなみ・ケア用品 / Personal Care (用具)
+  28. くし
+  a comb
+  29. ヘアブラシ
+  a brush
+  30. 歯ブラシ
+  a toothbrush
+  31. 爪切り
+  a nail clipper
+  32. 爪やすり
+  a nail file
+  33. かみそり
+  a razor
 
-【身だしなみ・ケア用品 / Personal Care (製品・化粧品)】
+  身だしなみ・ケア用品 / Personal Care (製品・化粧品)
   34. 石鹸
   soap
   35. 制汗剤・デオドラント
@@ -242,7 +239,7 @@
   49. マニキュア（ネイルポリッシュ）
   nail polish
 
-【美容・サロンケア関連表現】
+美容・サロンケア関連表現
   50. 散髪
   a haircut
   51. 爪の手入れ（マニキュア）
@@ -258,7 +255,7 @@
   56. マッサージ
   a massage
 
-【宿泊施設の種類 / Hotel accommodations】
+宿泊施設の種類 / Hotel accommodations
   1. ホテル
   a hotel
   2. ユースホステル
@@ -270,7 +267,7 @@
   5. 旅館
   a Japanese-style inn
 
-【ホテルの施設 / Hotel facilities】
+ホテルの施設 / Hotel facilities
   6. フィットネスセンター
   a fitness center
   7. プール
@@ -286,7 +283,7 @@
   12. コンシェルジュ
   a concierge
 
-【ホテルのアメニティ / Hotel Amenities】
+ホテルのアメニティ / Hotel Amenities
   13. 追加のタオル
   extra towels
   14. たくさんのハンガー
@@ -304,7 +301,7 @@
   20. アイロンとアイロン台
   an iron and ironing board
 
-【部屋のタイプ / Hotel Rooms】
+部屋のタイプ / Hotel Rooms
   21. ダブルルーム
   a double room
   22. シングルルーム
@@ -312,7 +309,7 @@
   23. スイートルーム
   a suite
 
-【ベッドのタイプ / Bed Types】
+ベッドのタイプ / Bed Types
   24. ツインベッド
   a twin bed
   25. クイーンサイズベッド
@@ -330,6 +327,7 @@
   const playBtn = document.getElementById('playBtn');
   const stopBtn = document.getElementById('stopBtn');
   const englishOnlyCheckbox = document.getElementById('englishOnly');
+  const infiniteLoopCheckbox = document.getElementById('infiniteLoop');
   const speedSelect = document.getElementById('speed');
   
   const enVoiceSelect = document.getElementById('enVoiceSelect');
@@ -342,7 +340,7 @@
   let sectionIndex = 0;
 
   function isJapanese(text) {
-    return /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
+    return /[぀-ゟ゠-ヿ一-龯]/.test(text);
   }
 
   const lines = rawData.split('\n').map(l => l.trim());
@@ -438,10 +436,18 @@
   }
 
   function speakNext() {
-    if (!isPlaying || currentIndex >= lineData.length) {
-      isPlaying = false;
-      playBtn.textContent = '▶ 再生';
-      return;
+    if (!isPlaying) return;
+    
+    // Check if we reached the end
+    if (currentIndex >= lineData.length) {
+        if (infiniteLoopCheckbox.checked) {
+            currentIndex = 0; // Loop back to start
+        } else {
+            isPlaying = false;
+            playBtn.textContent = '▶ 再生';
+            lineData.forEach(item => item.el.classList.remove('playing'));
+            return;
+        }
     }
 
     const currentItem = lineData[currentIndex];
@@ -488,12 +494,21 @@
   }
 
   playBtn.addEventListener('click', () => {
-    if (isPlaying) return;
-    window.speechSynthesis.cancel();
-    isPlaying = true;
-    playBtn.textContent = '再生中...';
-    if (currentIndex >= lineData.length) currentIndex = 0;
-    speakNext();
+    if (isPlaying) {
+        window.speechSynthesis.pause();
+        isPlaying = false;
+        playBtn.textContent = '▶ 再開';
+    } else {
+        isPlaying = true;
+        playBtn.textContent = '⏸ 一時停止';
+        
+        if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+        } else {
+            if (currentIndex >= lineData.length) currentIndex = 0;
+            speakNext();
+        }
+    }
   });
 
   stopBtn.addEventListener('click', () => {
@@ -501,6 +516,7 @@
     window.speechSynthesis.cancel();
     playBtn.textContent = '▶ 再生';
     lineData.forEach(item => item.el.classList.remove('playing'));
+    currentIndex = 0; // Reset index when stopped
   });
 
   window.addEventListener('beforeunload', () => {
@@ -510,8 +526,3 @@
 </script>
 </body>
 </html>
-```<br>
-<br><details><summary>Follow-up Questions</summary>
-* Are there any specific words or phrases here that you'd like an explanation for regarding their usage?
-* Would you like me to create an HTML file for any other vocabulary lists?
-* Should I add a "Repeat List" toggle switch that loops the audio playback once it reaches the end?</details>
