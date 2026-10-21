@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語学習リスニングプレーヤー（無限ループ機能付き）</title>
+<style>
+  body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+  }
+  #header {
+    position: sticky;
+    top: 0;
+    background-color: #ffffff;
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+  }
+  button {
+    font-size: 14px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+  #playBtn {
+    background-color: #4CAF50;
+    color: white;
+  }
+  #playBtn:hover { background-color: #45a049; }
+  #stopBtn {
+    background-color: #f44336;
+    color: white;
+  }
+  #stopBtn:hover { background-color: #da190b; }
+  .controls-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    background: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  select {
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    max-width: 150px;
+  }
+  
+  #toc {
+    max-width: 800px;
+    margin: 15px auto 0;
+    padding: 15px 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .toc-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #e3f2fd;
+    color: #1976d2;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #bbdefb;
+  }
+  .toc-btn:hover {
+    background: #1976d2;
+    color: white;
+  }
+
+  #content {
+    max-width: 800px;
+    margin: 15px auto 20px;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+  }
+  .line {
+    padding: 8px 10px;
+    margin: 4px 0;
+    border-radius: 4px;
+    line-height: 1.6;
+    transition: background-color 0.3s;
+  }
+  .line.japanese {
+    color: #666;
+    font-size: 0.95em;
+  }
+  .line.english {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-bottom: 15px; 
+  }
+  .playing {
+    background-color: #fff3e0 !important;
+    border-left: 4px solid #ff9800;
+    font-weight: bold;
+  }
+  .section-header {
+    scroll-margin-top: 100px;
+  }
+</style>
+</head>
+<body>
+
+  <div id="header">
+    <button id="playBtn">▶ 再生</button>
+    <button id="stopBtn">■ 停止</button>
+    <div class="controls-group">
+      <label><input type="checkbox" id="englishOnly"> 英語のみ</label>
+    </div>
+    <div class="controls-group">
+      <label><input type="checkbox" id="infiniteLoop" checked> 無限ループ</label>
+    </div>
+    <div class="controls-group">
+      <label>速度:</label>
+      <select id="speed">
+        <option value="0.7">0.7x</option>
+        <option value="0.9">0.9x</option>
+        <option value="1.0" selected>1.0x</option>
+        <option value="1.2">1.2x</option>
+      </select>
+    </div>
+    <div class="controls-group">
+      <label>英語の声:</label>
+      <select id="enVoiceSelect"></select>
+    </div>
+    <div class="controls-group">
+      <label>日本語の声:</label>
+      <select id="jaVoiceSelect"></select>
+    </div>
+  </div>
+
+  <div id="toc"></div>
+  <div id="content"></div>
+
+  <textarea id="rawData" style="display:none;">
+    【Writing 英語のみ】
+    If I study English, I will talk to people all over the world.
+    If I talk to people all over the world, I will get good ideas.
+    If I get good ideas, I will start a new company.
+    If I start a new company, I will make a lot of money.
+    If I make a lot of money, I will make a smart robot.
+    If I make a smart robot, it will help everyone.
+    If it helps everyone, I will become famous.
+    If I become famous, people will love me. 
+    If people love me, they will listen to me.
+    If they listen to me, I will rule the world! 
+
+    【Writing 翻訳】
+    もし英語を勉強したら、私は世界中の人と話します。
+    If I study English, I will talk to people all over the world.   
+    もし世界中の人と話したら、良いアイデアが浮かびます。
+    If I talk to people all over the world, I will get good ideas.   
+    もし良いアイデアが浮かんだら、新しい会社を始めます。
+    If I get good ideas, I will start a new company.   
+    もし新しい会社を始めたら、たくさんのお金を稼ぎます。
+    If I start a new company, I will make a lot of money.   
+    もしお金をたくさん稼いだら、賢いロボットを作ります。
+    If I make a lot of money, I will make a smart robot.   
+    もし賢いロボットを作ったら、それはみんなを助けます。
+    If I make a smart robot, it will help everyone.   
+    もしそれがみんなを助けたら、私は有名になります。
+    If it helps everyone, I will become famous.   
+    もし私が有名になったら、人々は私を大好きになります。
+    If I become famous, people will love me.   
+    もし人々が私を大好きになったら、彼らは私の言うことを聞きます。
+    If people love me, they will listen to me.   
+    もし彼らが私の言うことを聞いたら、私は世界を支配します！
+    If they listen to me, I will rule the world! 
+  
+  【VOCA】
+  身だしなみ・ケア用品 / Personal Care (用具)
+  28. くし
+  a comb
+  29. ヘアブラシ
+  a brush
+  30. 歯ブラシ
+  a toothbrush
+  31. 爪切り
+  a nail clipper
+  32. 爪やすり
+  a nail file
+  33. かみそり
+  a razor
+
+  身だしなみ・ケア用品 / Personal Care (製品・化粧品)
+  34. 石鹸
+  soap
+  35. 制汗剤・デオドラント
+  deodorant
+  36. シェービングクリーム
+  shaving cream
+  37. アフターシェーブローション
+  aftershave
+  38. 歯磨き粉
+  toothpaste
+  39. シャンプー
+  shampoo
+  40. ヘアスプレー
+  hairspray
+  41. ヘアジェル
+  hair gel
+  42. ハンド＆ボディローション
+  hand and body lotion
+  43. デンタルフロス
+  dental floss
+  44. 日焼け止め
+  sunscreen
+  45. マスカラ
+  mascara
+  46. 口紅
+  lipstick
+  47. アイシャドウ
+  eyeshadow
+  48. フェイスパウダー
+  face powder
+  49. マニキュア（ネイルポリッシュ）
+  nail polish
+
+美容・サロンケア関連表現
+  50. 散髪
+  a haircut
+  51. 爪の手入れ（マニキュア）
+  a manicure
+  52. 足爪の手入れ（ペディキュア）
+  a pedicure
+  53. 手足両方の手入れ（マニペディ）
+  a mani-pedi
+  54. 顔剃り（シェービング）
+  a shave
+  55. 美顔（フェイシャルトリートメント）
+  a facial
+  56. マッサージ
+  a massage
+
+宿泊施設の種類 / Hotel accommodations
+  1. ホテル
+  a hotel
+  2. ユースホステル
+  a youth hostel
+  3. B&B（朝食付民宿）
+  a bed and breakfast
+  4. 民泊・短期賃貸
+  a short-term vacation rental
+  5. 旅館
+  a Japanese-style inn
+
+ホテルの施設 / Hotel facilities
+  6. フィットネスセンター
+  a fitness center
+  7. プール
+  a pool
+  8. サウナ
+  a sauna
+  9. ギフトショップ
+  a gift shop
+  10. レストラン
+  a restaurant
+  11. ビジネスセンター
+  a business center
+  12. コンシェルジュ
+  a concierge
+
+ホテルのアメニティ / Hotel Amenities
+  13. 追加のタオル
+  extra towels
+  14. たくさんのハンガー
+  lots of hangers
+  15. スカート用ハンガー
+  skirt hangers
+  16. バスローブ
+  a bathrobe
+  17. ヘアドライヤー
+  a hair dryer
+  18. 金庫
+  a safe
+  19. ミニバー
+  a minibar
+  20. アイロンとアイロン台
+  an iron and ironing board
+
+部屋のタイプ / Hotel Rooms
+  21. ダブルルーム
+  a double room
+  22. シングルルーム
+  a single room
+  23. スイートルーム
+  a suite
+
+ベッドのタイプ / Bed Types
+  24. ツインベッド
+  a twin bed
+  25. クイーンサイズベッド
+  a queen-size bed
+  26. キングサイズベッド
+  a king-size bed
+  27. 折りたたみ式ベッド（エキストラベッド）
+  a rollaway bed
+
+【プレーズQ＆A】
+You agree with someone's opinion or decision.I agree with you.
+
+I'm with you.
+
+Something is extremely expensive.
+
+It costs an arm and a leg.
+
+An important, helpful, or convincing argument or detail.
+
+A good point.
+
+You prefer to spend time by yourself.
+
+I like my privacy.
+
+The detailed conditions or small text in a contract or agreement.
+
+The fine print.
+
+An amount of money you pay for a service or professional advice.
+
+A fee.
+
+Having a polite conversation about everyday, light subjects.
+
+Making small talk.
+
+Something has many disadvantages or negative aspects.
+
+It's got a lot of downsides.
+
+Doing something extra at the same time as the current activity.
+
+While we're at it.
+
+It makes no difference to you, or you have no strong preference.
+
+I don't care.
+
+You decide to do something risky, big, or tough after hesitation.
+
+I'll take the plunge.
+
+You encourage someone to pursue a goal or take action.
+
+Go for it!
+
+【プレーズ】 
+Part 1: Unit 4 — 未来表現「will / won't」
+（基本例文）彼女は明日、電話をかけ直します。
+She'll call back tomorrow.   
+私たちは今日の午後の会議には参加しません。
+We won't be at the meeting this afternoon.   
+夕食後に宿題を終わらせます。
+I will finish my homework after dinner.   
+明日は学校に行きません。
+I won't go to school tomorrow.   
+今日の放課後はテニスクラブにはいません。
+I won't be at tennis club after school today.   
+歯医者に行きますか？ — はい、行きます。歯が痛いんです。
+Will you go to the dentist? — Yes, I will. My tooth hurts.   
+今日は学校に来ますか？ — いいえ、行きません。今日は少し具合が悪いです。
+Will you come to school today? — No, I won't. I'm feeling a little sick today.   
+会議はいつ始まりますか？ — 数分後に始まります。
+When will the meeting start? — It'll start in a few minutes.   
+【練習問題：will / won't】
+ご主人のフライトが遅れています。彼は6時前には空港から到着しないでしょう。
+Your husband's flight is delayed. He won't arrive from the airport before 6:00.   
+電話会議は、明日のベルリン時間3時に始まります。
+The conference call will start at 3:00 tomorrow Berlin time.  
+試合が遅れて始まりました。お子さんたちは5時過ぎまで帰宅しないでしょう。
+The game started late. Your children won't be home until after 5:00.   
+明日、私はオフィスに早く出社しなければなりませんか？
+Will I have to come into the office early tomorrow?   
+会議の後、誰が私たちを空港まで車で送ってくれますか？
+Who will drive us to the airport after the meeting?   
+マリー・シルズから電話がありました。彼女は今夜7時に電話をかけ直します。
+Marie Sills called. She'll call back this evening at 7:00.   
+明日の朝、どこで私たちと待ち合わせしますか？
+Where will you meet us tomorrow morning?   
+Part 2: Unit 4 — 「will」と「be going to」の使い分け
+【予測：どちらもOK】   
+明日は雨が降るでしょう。
+It'll rain tomorrow. / It's going to rain tomorrow.   
+【すでに決まっている予定：be going to】   
+来月、タイに旅行する予定です！
+We are going to travel to Thailand next month!   
+空港へはタクシーで行く予定ですか？ — いいえ。車を運転していく予定です。
+Are you going to take a taxi to the airport? — No. I'm going to drive.   
+冬休みの予定はありますか？ — はい、あります。母と私は北海道を旅行する予定です。
+Do you have any plans for winter vacation? — Yes, I do. My mom and I are going to travel in Hokkaido.   
+【その場で決めたこと・意志：will】   
+たぶん車で空港に行きます。
+Maybe I'll drive to the airport.   
+今回は私が夕食代を払います。
+I will pay for dinner this time.   
+私が映画のチケット代を払います。
+I will pay for the movie tickets.   
+それなら、私がスナックと飲み物代を払いますね。
+Then, I'll pay for the snacks and drinks.   
+空港シャトルバスの代金は払いますが、Wi-Fiの代金は払いません。
+I'll pay for the airport shuttle, but I won't pay for the Wi-Fi.   
+【練習問題：会話】
+休暇にどこへ行くか決めましたか？ — はい。私たちはスペインに行く予定です！
+Have you decided where you are going on your vacation? — Yes, we have. We are going to go to Spain!   
+わあ！いつ出発する予定ですか？ — 15日に飛行機で出発する予定です。
+Wow! When are you going to leave? — We are going to fly out on the 15th.   
+素晴らしいですね。どこに泊まる予定ですか？ — まだ分かりません。向こうに着いたときに何か見つけると思います。
+That's fantastic. Where are you going to stay? — I don't know yet. I guess we will find something when we get there.   
+【追加練習問題：will vs. be going to】
+パンが全然ありませんね。 — ええ、知っています。いくつか買ってくる予定です。あなたの財布からお金を少し取りました。
+We don't have any bread. — Yes, I know. I'm going to buy some. I took some money from your purse.   
+パンが全然ありませんね。 — 本当ですか？それなら私がお店からいくつか買ってきますね。
+We don't have any bread. — Really? I'll get some from the shop then.   
+なぜ私のスーツケースを借りる必要があるのですか？ — 来月、スコットランドにいる母を訪ねる予定だからです。
+Why do you need to borrow my suitcase? — Because I'm going to visit my mother in Scotland next month.   
+すごく寒いです。 — 暖房をつけますね。
+I'm really cold. — I'll turn the heating on.   
+大学を卒業した後の予定は何ですか？ — アフリカの病院で働く予定です。
+What are your plans after you leave university? — I'm going to work in a hospital in Africa.   
+照明が全部消えてしまいました！ — 心配しないで。私がちょっと見てみます。
+All the lights have gone off! — Don't worry. I'll take a look.   
+なぜノートパソコンを持ち歩いているのですか？ — 電車の中で宿題をする予定なんです。
+Why are you carrying your laptop? — I'm going to do some homework on the train.   
+鍵が見つかりません。 — 探すのを手伝いますよ。
+I can't find my keys. — I'll help you look for them.   
+チケットを買うのを覚えていましたか？ — ああ、いけない、忘れていました！今すぐオンラインで買います。
+Did you remember to buy the tickets? — Oh no, I forgot! I'll buy them online now.   
+このグラフを見れば、経済がもうすぐ悪化することが分かります。
+If you take a look at this graphic, you can see that the economy is going to get worse very soon.   
+Part 3: Unit 4 — リアル条件文（The Real Conditional）
+※ルール：If節の中では未来のことでも現在形を使う。If節が先ならカンマを入れ、後ろならカンマは不要。  
+ 【基本＆未来の結果：If + 現在形, will + 動詞の原形】   
+ もし彼が勉強すれば、彼の英語は上達するでしょう。
+If he studies, his English will improve.   
+もし雨が降れば、私は傘を持っていきます。
+If it rains, I will bring an umbrella.   
+もし彼が正午前にお電話をすれば、彼女はまだ家にいるでしょう。
+If he calls her before noon, she'll still be home.   
+もし勉強すれば、テストに合格するでしょう。
+If you study, you will pass the test.   
+もし夜更かしをすれば、明日は疲れているでしょう。
+If I stay up late, I will be tired tomorrow.   
+明日は疲れているでしょう、もし夜更かしをすれば。
+I will be tired tomorrow if I stay up late.   
+【事実としての結果：If + 現在形, 現在形】   
+スイートを予約すると、リビングルームが付いてきます。
+If you reserve a suite, you get a living room.   
+氷を熱すると、それは溶けます。
+If you heat ice, it melts.   
+【練習問題 1・2：条件文】
+もし次のクルーズで彼女がスイートを取れば、彼女はもっと快適になるでしょう。
+If she gets a suite on her next cruise, she will be more comfortable.   
+ホテルのポリシーは常に、もしゲストがダブルルームを希望するなら、予約時にリクエストしなければならないというものです。
+The hotel's policy has always been that if guests want a double room, they have to request one when they make the reservation.   
+もし私が荷物で助けが必要なら、空港で誰かが手を貸してくれるでしょうか？
+Will someone give me a hand at the airport if I need help with my luggage?   
+もし今すぐ簡易ベッドをリクエストすれば、彼らはあなたの部屋に一つ持ってくるでしょう。
+If you request a rollaway bed right now, they will bring one to your room.   
+もし彼らがキングサイズのベッドを持っていなければ、いつもクイーンサイズを2つ提供します。
+If they don't have a king-size bed, they always give you two queens.   
+もし急げば、手荷物受取所へのシャトルに乗ることができます。
+If we hurry, we can catch the shuttle to baggage claim.   
+もしビジネスセンターがなければ、彼はホテルに滞在しないでしょう。
+He won't stay at a hotel if they don't have a business center.   
+もし彼らが私たちの部屋を準備できていれば、私たちは早くチェックインできるでしょう。
+If they have our room ready, we'll be able to check in early.   
+リクエストすれば、ホテルは朝にモーニングコールを提供します。
+If you request it, the hotel provides a wake-up service in the morning. / If you request it, the hotel will provide a wake-up service in the morning.   
+もし現地の交通機関について質問がある場合、誰に電話すればよいですか？
+Who do we call if we have questions about local transportation?   
+もしホテルにフィットネスセンターがある場合、通常は24時間営業ですか？
+If a hotel has a fitness center, is it usually open at all hours?   
+もしホテルの部屋の電話のランプが点滅したら、それはメッセージがあることを意味します。
+If the light on your hotel room phone flashes, it means you have a message.   
+Part 4: Unit 5 — 数量詞（Quantifiers: some, any, a lot of, lots of, many, much）
+※ルール：肯定文・勧誘（Offer）・依頼（Request）は「some」。
+否定文は「any」。
+「a lot of / lots of」は数えられる名詞・数えられない名詞どちらにも使える。
+「many」は数えられる名詞の複数形、
+「much」は数えられない名詞の否定文で主に使う。   
+【基本例文：some / any】   
+彼女は夕食のためにいくつかの材料を買いました。
+She bought some ingredients for dinner.   
+私は現金を全く持っていません。
+I don't have any cash with me.   
+フライドポテトはありますか？
+Do you have any fries?   
+ご飯はいかがですか？ — はい、お願いします。全く持っていないんです。
+Do you want some rice? — Yes, please. I don't have any.   
+【オファー（勧める）とリクエスト（頼む）：疑問文でも some】   
+日焼け止めはいかがですか？
+Would you like some sunscreen?   
+ヘアジェルは欲しいですか？
+Do you want some hair gel?   
+日焼け止めをもらえますか？家に忘れてしまいました。
+Can I have some sunscreen? I forgot mine at home.   
+シャンプーを買ってきてくれますか？ちょうど切らしてしまったんです。
+Could you buy some shampoo? We just ran out.   
+【基本例文：a lot of / lots of / many / much】   
+彼はたくさんの本を持っています。
+He has a lot of books. / He has lots of books.   
+ヘアスプレーをたくさん持っていますか？
+Do you have a lot of hairspray? / Do you have lots of hairspray?   
+そのお店にはあまり多くのブランドのローションはありません。
+The store doesn't have many brands of lotion.   
+昼食を買いたかったのですが、今日はあまり多くのものがありません。
+I wanted to buy lunch, but they don't have many things today.   
+歯磨き粉もあまりたくさんありません。
+It doesn't have much toothpaste either.   
+宿題を終わらせないといけないので、テレビを見る時間はあまりありません。
+I need to finish my homework, so I don't have much time to watch TV.   
+カミソリはどうですか？いくつかありますか？ — はい、たくさんあります。
+How about razors? Do you have any? — Yes, I have lots.   
+【練習問題 3・4：数量詞】必要ならローションがいくつかありますよ。 — 実は探したのですが、そこには全くありませんでした。
+I have some lotion if you need it. — Actually, I looked, and there wasn't any in there.   
+化粧品は何か持ってきましたか？ — ああ、いいえ。忘れてしまいました。
+Did you bring any makeup with you? — Oh, no. I forgot it.   
+お店に行ったら、デンタルフロスをいくつか買ってきてください。 — わかりました。リストに追加しました。
+Please get some dental floss when you go to the store. — OK. I added that to my list.   
+カミソリがいくつか必要なのですが、棚には全く見当たりませんでした。 — 本当ですか？今朝はカミソリがたくさんありましたよ。
+I need some razors, and I didn't see any on the shelf. — Really? We had lots of razors this morning.   
+お店にいる時に歯磨き粉をいくつか買ってきてくれませんか？子供たちのバスルームには全くありません。
+Could you pick up some toothpaste when you're at the store? There isn't any in the kids' bathroom.   
+シェービングクリームはありますか？ — いいえ、あなた。全くありません。いくつか必要ですね。
+Is there any shaving cream? — No, honey. There isn't any. We need some.   
+このお店はあまり多くのパーソナルケア製品を扱っていません。
+This store doesn't carry many personal care products.   
+デンタルフロスは全く見つかりませんが、ここには歯ブラシがいくつかあります。
+I can't find any dental floss, but here are some toothbrushes.   
+くしとブラシはたくさんありますか？
+Do you have a lot of combs and brushes?   
+フェイスパウダーがあまり残っていません。
+I don't have much face powder left.   
+グレースはあまりシャンプーを使いません。
+Grace doesn't use much shampoo.   
+彼女はたくさんの化粧品を持っています。彼女はもっと収納スペースが必要です。
+She has a lot of makeup. She needs more storage space.   
+彼らもローションをあまり（全く）持っていません。
+They don't have much lotion either. / They don't have any lotion either.   
+シェービングクリームは必要ですか？
+Do you need any shaving cream? / Do you need some shaving cream?   
+Part 5: Unit 5 — 不定代名詞（Indefinite Pronouns: someone, no one, anyone）
+※ルール：肯定文は「someone」または「no one」。
+否定文（notがある文）は必ず「anyone」（not と no one は一緒に使わない）。
+疑問文は「someone / anyone」どちらもOK。   
+【基本例文】   誰かが教室にいます。
+Someone is in the classroom.   
+誰もテストが水曜日にあると私に教えませんでした。
+No one told me that the test will be on a Wednesday.   
+教室に誰かいますか？
+Is someone in the classroom?   
+か私にペディキュアをしてくれますか？
+Can anyone give me a pedicure? / Can someone give me a pedicure?   
+教室には誰もいません。
+There isn't anyone in the classroom.  
+ 私は誰にも話しかけませんでした。
+I didn't speak to anyone.   
+【練習問題 5・6：不定代名詞】フロントデスクに誰かいます。（フロントデスクに誰もいません。）
+There's someone at the front desk. / There's no one at the front desk.   
+火曜日にサロンで半額のヘアカットがあると誰も教えてくれませんでした。
+（誰かが教えてくれました。）
+No one told me the salon offers half-price haircuts on Tuesdays. / Someone told me the salon offers half-price haircuts on Tuesdays.  
+ 1時間後にマッサージをしてくれる誰かがここに来る予定です。
+There will be someone here to give you a massage in an hour.   
+彼らは長い待ち時間について誰にも教えませんでした。
+They didn't tell anyone about the long wait.   
+ひげ剃りをしてくれる誰かを見かけましたか？
+Did you see anyone giving shaves? / Did you see someone giving shaves?   
+私は料金について誰にも尋ねませんでした。
+I didn't ask anyone about the price.   
+もし待っていただけるなら、11時に誰かがペディキュアをすることができます。
+Someone can give you a pedicure at 11:00 if you can wait.   
+その値段は誰にも言わないでください。とても高かったんです！
+Please don't tell anyone the price. It was so expensive!   
+あなたがサロンにいる間に誰かから電話があり、このメッセージを残しました。
+Someone called and left you this message while you were at the salon.   
+私はくしを持っていません。誰かにあげました。
+I don't have the combs. I gave them to someone.   
+このひどいマニキュアについて、私は誰にも話しませんでした。
+I didn't speak to anyone about this terrible manicure.   
+私が予約の電話をした時、そこには誰もいませんでした。
+There wasn't anyone there when I called for an appointment.   
+すみません。フロントデスクに誰もいません。手伝っていただけますか？
+Excuse me. No one is at the front desk. Can you help me?   
+申し訳ありません。今すぐお手伝いできる者は誰もいません。
+I'm sorry. There isn't anyone available to help you right now.   
+誰かマニキュアをしてくれませんか？
+Can someone give me a manicure? / Can anyone give me a manicure?   
+あなたの前に誰かがいます。お待ちいただけますか？
+There's someone ahead of you. Do you mind waiting?   
+誰かが、ここはマッサージを受けるのに最適な場所だと言っていました。
+Someone told me this was the best place to get a massage.   
+私の知っている誰かが、以前このサロンに来たことがあります。
+Someone I know has been to this salon before.   
+ひげ剃りをしてくれる誰かはいますか？
+Is there someone available to give me a shave? / Is there anyone available to give me a shave?   
+
+【Q＆A】
+Are you going to study English today?
+I am going to study English at home today. I have an English test tomorrow.
+
+Are you going to take the Eiken this year?
+I am going to take Eiken Grade 2 this year. I want to pass the exam.
+
+Did you go to the beach last month?
+I did not go to the beach last month. I just stayed home and relaxed.
+
+Did you go to a new place last month?
+I went to a new cafe in Shinjuku last month. The coffee and cake were very good.
+
+Did you watch an animated movie last month?
+I watched a Ghibli animated movie on TV. The story was very interesting.
+
+Do you enjoy making small talk with strangers?
+I do not enjoy talking with new people. I am too shy to speak first.
+
+Do you ever talk to the concierge at hotels?
+I sometimes talk to the hotel concierge. I ask them for good local restaurants.
+
+Do you ever use the minibar in your hotel room?
+I never use the minibar in my room. The drinks inside are too expensive.
+
+Do you have any extra paper in your bookbag?
+I have some notebook paper in my bag. You can use one sheet if you need it.
+
+Do you have any scissors in your pencil case?
+I have small scissors in my pencil case. I always use them in art class.
+
+Do you have some snacks in your bag?
+I have some sweet chocolate in my bag. I like eating it after school.
+
+Do you need lots of hangers when you travel?
+I do not need many hangers on a trip. Two or three hangers are enough for me.
+
+Do you prefer a hotel with a pool? Why or why not?
+I prefer a hotel with a swimming pool. I love swimming during summer vacations.
+
+Do you prefer a gift shop or a fitness center at a hotel?
+I prefer a gift shop over a fitness center. I like buying cute souvenirs for my friends.
+
+Do you prefer a pool or a sauna at hotels?
+I prefer a swimming pool at hotels. Playing in the water is very fun.
+
+Do you prefer a comb or a brush for your hair?
+I prefer a brush for my long hair. It is easier to use than a comb.
+
+Do you use a fitness center when you travel?
+I do not use a fitness center on trips. I usually walk around the town instead.
+
+Has your family used a sauna in a hotel?
+My father has used a hotel sauna before. He says it makes him feel refreshed.
+
+Have you ever used skirt hangers? Do you need them?
+I have used skirt hangers in my room. I need them to hang my school skirt neatly.
+
+Have you ever been to a bed and breakfast?
+I have never visited a bed and breakfast. However, I want to go there someday.
+
+Have you ever stayed at a resort hotel?
+I have stayed at a big resort hotel with my family. The ocean view from the room was wonderful.
+
+Have you ever been to Kyoto?
+I have visited Kyoto two times. I saw many beautiful shrines and temples.
+
+Have you ever stayed at a bed and breakfast?
+I have never stayed at a bed and breakfast. I usually stay at Western-style hotels.
+
+Have you ever had a manicure?
+I have never had a manicure in my life. Junior high students cannot paint their nails.
+
+Have you ever had a pedicure?
+I have never had a pedicure before. I want to try it during summer vacation.
+
+Have you ever read the fine print when signing up for a website?
+I have never read the small rules on websites. The sentences are too long and difficult.
+
+Have you ever worked out in the fitness center in a hotel?
+I have never exercised in a hotel gym. I prefer looking around tourist spots outside.
+
+Have you got any hand lotion in your bag?
+I always keep my hand cream in my school bag. My skin gets very dry in winter.
+
+How many people are in your family?
+There are four people in my family. I live with my parents and my younger brother.
+
+How many times have you stayed at a Japanese-style inn?
+I have stayed at a Japanese inn three times. I really like sleeping on soft futons.
+
+How much homework do you have to do tonight?
+I have to do a lot of homework tonight. It will take more than two hours to finish.
+
+How often do you go abroad on vacation?
+My family travels abroad once every two years. I enjoy speaking simple English there.
+
+How often do you wear a bathrobe?
+I almost never wear a bathrobe at home. I only try it when I stay at hotels.
+
+How often do you use a hair dryer?
+I use a hair dryer every night after taking a bath. I do not want to catch a cold.
+
+If you forget your homework, what will you do?
+I will say sorry to my teacher honestly. Then I will bring it the next morning.
+
+Is a minibar important for you?
+A hotel minibar is not important for me. I can just buy cold drinks at convenience stores.
+
+Is a hair dryer necessary for you?
+A hair dryer is very necessary for my daily life. It takes too long to dry my hair naturally.
+
+Is shampoo countable or uncountable?
+Shampoo is an uncountable noun in English. However, a comb is a countable noun.
+
+Is our teacher going to give us free money right now?
+Our teacher is not going to give us any money. That sounds like a crazy idea.
+
+Tell me about a downside of going to school at Hiroo Gakuen.
+The biggest downside is having too much homework every day. Many students feel tired from studying.
+
+Tell me about a downside of living in Tokyo.
+A downside of living in Tokyo is the crowded trains. It is hard to ride them every morning.
+
+Tell me about your dream vacation destination.
+My dream vacation destination is Hawaii. I want to swim in the beautiful blue ocean.
+
+Tell me about a fee your parents sometimes pay.
+My parents pay the monthly internet fee at home. It allows us to use computers and smartphones.
+
+Tell me about a time you took the plunge for something.
+I took the plunge when I joined the school basketball team. I was nervous because I had no experience.
+
+What amenities do short-term vacation rentals have?
+They usually have a useful kitchen and a washing machine. Guests can cook their own meals easily.
+
+What are the best amenities in hotels?
+The best amenities are big, soft bath towels. High-quality shampoo is also very nice.
+
+What do you think is the most important thing in a hotel room?
+I think a comfortable and clean bed is the most important thing. It gives travelers a good night's sleep.
+
+What is the most common hotel facility?
+The front desk is the most common hotel facility in the world. Friendly staff members help you check in there.
+
+What is your favorite hotel amenity?
+My favorite hotel amenity is free bottled water. It is very nice to drink after a long trip.
+
+What is your favorite facility?
+My favorite hotel facility is the large swimming pool. I like playing in the pool with my friends.
+
+What is something you think every hotel room should have? Why?
+I think every hotel room must have a hair dryer. Sleeping with wet hair feels terrible.
+
+What's your least favorite kind of accommodation when you travel?
+My least favorite kind of accommodation is a capsule hotel. The small space makes me feel nervous.
+
+What's something that "costs an arm and a leg"?
+Buying a famous luxury sports car costs an arm and a leg. Only very rich people can buy one.
+
+What's the difference between...
+
+... "a bed and breakfast" and "a short-term vacation rental"?
+A bed and breakfast gives a morning meal to guests. A short-term vacation rental does not serve any food.
+
+... "a suite" and "a double room" in hotels?
+A hotel suite has several connected living rooms and bedrooms. A double room is just one bedroom with a big bed.
+
+... "a yukata" and "a bathrobe"?
+A yukata is a light traditional Japanese cotton cloth. A bathrobe is made of thick towel material to dry your body.
+
+... "a rollaway bed" and "sofa bed"?
+A rollaway bed is an extra portable bed with wheels. A sofa bed is a comfortable couch that changes into a bed.
+
+... "a fee" and "a bill"?
+A fee means the set price you pay for a service. A bill is a printed paper that asks you for money.
+
+... "a good point" and "a downside"?
+A good point means an advantage or a nice thing. A downside means a disadvantage or a bad point.
+
+... "a king-sized bed" and "a queen-sized bed"?
+A king-sized bed is the biggest and widest bed in a hotel. A queen-sized bed is a little smaller than a king bed.
+
+... "a bed and breakfast" and "a traditional Japanese-style inn"?
+A Japanese inn offers tatami mat floors and futons. A bed and breakfast offers normal Western-style rooms and beds.
+
+... "fine print" and "fee"?
+Fine print means important rules written in very small letters. A fee is the actual money you must pay.
+
+... "shampoo" and "conditioner"?
+Shampoo washes away dirt and oil from your hair. Conditioner makes your dry hair smooth and soft.
+
+What kind of facilities do hotels have?
+Hotels usually have good restaurants and fitness gyms. Some luxury hotels also have swimming pools.
+
+What will happen if I forget my homework?
+You will have to finish the homework during your lunchtime. Your teacher will be a little angry with you.
+
+What will happen if you skip school?
+My parents and teachers will be very angry at me. I will miss important lessons and fall behind.
+
+What will happen if you only eat carrots?
+Your body will become weak without enough protein and rice. Your skin color might also turn a little orange.
+
+What will happen if aliens come to Earth?
+People all over the world will be shocked and scared. Scientists will try to talk with them peacefully.
+
+What will you do if you move to Taiwan tomorrow?
+I will buy sweet bubble tea at a local shop first. Then I will eat tasty food at night markets.
+
+What will you do if you become famous?
+I will travel to many countries around the world. I want to meet and talk with my fans everywhere.
+
+What will you do if you become a cat?
+I will sleep under the warm sun all day long. I will never do any difficult homework again.
+
+What will you do if you win the ¥1,000,000 lottery?
+I will save half of the prize money in the bank. Then I will take my family on a wonderful trip.
+
+What will you do if you become the Japanese Prime Minister?
+I will make summer vacation two months long for students. Everyone will enjoy having more free time.
+
+When will English class end?
+This English class will end at two thirty this afternoon. We only have ten minutes left now.
+
+When will you do your homework tonight?
+I will do my English homework after dinner tonight. I want to finish all my work before ten.
+
+When will you eat dinner tonight?
+I will eat dinner with my family at seven o'clock. We always enjoy talking at the dinner table.
+
+When will we take our speaking test?
+We will take the English speaking test next Monday. The date is October 13th.
+
+Where are you going to go this weekend?
+I am going to visit Shibuya with my good friends. I want to buy new clothes for winter.
+
+Where do you like to go during summer vacation?
+I like to visit my grandparents' home in the countryside. The air is fresh and nature is everywhere.
+
+Where is your favorite vacation destination?
+My favorite vacation destination is Okinawa in summer. The sea there is so clear, blue, and beautiful.
+
+Where will you live when you are an adult?
+I will live in a quiet and nice apartment in Tokyo. I like living close to big train stations.
+
+Which class will we have next?
+We will have math class in this classroom next. You should take out your math textbook now.
+
+Which hotel facility do you go to the most?
+I go to the breakfast restaurant the most during my stay. I love eating fresh bread at the morning buffet.
+
+Which kind of accommodation is the most expensive?
+Five-star luxury hotels are the most expensive accommodation. They give very high-level service to rich guests.
+
+Which subject are you going to study tonight?
+I am going to study English and science tonight. I have to prepare for the regular school tests.
+
+Which type of accommodation is the most popular in Japan?
+Modern hotels and Japanese-style inns are the most popular. Many people love enjoying hot springs at traditional inns.
+
+Which university will you go to after high school?
+I want to enter a good university in Tokyo. I plan to study English and foreign cultures there.
+
+Who will be our class president next year?
+I think Tanaka-kun will become our next class president. He is very reliable and kind to our classmates.
+
+Who will be our homeroom teacher next year?
+I think Mr. Smith will be our new homeroom teacher. Every student likes his friendly English lessons.
+
+Who will get a perfect score on the English exam?
+I hope that I will get a hundred points on this test. I practiced speaking and writing English very hard.
+
+Who will give us the speaking tests?
+Our native English teacher will give us the speaking test. We will answer questions one-on-one in a separate room.
+
+Why might someone use a business center during a trip?
+Some people need to print important papers for their work. They also need quiet desks to use their laptops.
+
+Will you have curry for dinner tonight?
+I will eat warm beef curry for dinner tonight. My mother is making it in the kitchen right now.
+
+Would you like extra towels in your room?
+I would like two extra clean towels, please. My friend and I take showers twice a day.
+
+Would you like to go to Hawaii?
+I would love to travel to Hawaii with my family. I want to see the clear blue sea and palm trees.
+  </textarea>
+
+<script>
+  const rawData = document.getElementById('rawData').value;
+  const contentDiv = document.getElementById('content');
+  const tocDiv = document.getElementById('toc');
+  const playBtn = document.getElementById('playBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const englishOnlyCheckbox = document.getElementById('englishOnly');
+  const infiniteLoopCheckbox = document.getElementById('infiniteLoop');
+  const speedSelect = document.getElementById('speed');
+  
+  const enVoiceSelect = document.getElementById('enVoiceSelect');
+  const jaVoiceSelect = document.getElementById('jaVoiceSelect');
+
+  let isPlaying = false;
+  let currentIndex = 0;
+  const lineData = [];
+  let availableVoices = [];
+  let sectionIndex = 0;
+
+  function isJapanese(text) {
+    return /[぀-ゟ゠-ヿ一-龯]/.test(text);
+  }
+
+  const lines = rawData.split('\n').map(l => l.trim());
+  lines.forEach((line) => {
+    if (!line) return;
+    const p = document.createElement('div');
+    p.className = 'line';
+    p.textContent = line;
+
+    if (/^【.*】$/.test(line)) {
+      const sId = 'section-' + sectionIndex;
+      p.id = sId;
+      p.className += ' section-header'; 
+      p.style.fontWeight = 'bold';
+      p.style.marginTop = '20px';
+      p.style.fontSize = '1.2em';
+      
+      const tocBtn = document.createElement('a');
+      tocBtn.className = 'toc-btn';
+      tocBtn.textContent = line.replace(/【|】/g, '').split(' / ')[0]; 
+      tocBtn.onclick = () => {
+        document.getElementById(sId).scrollIntoView({ behavior: 'smooth' });
+        const targetIndex = lineData.findIndex(item => item.el === p);
+        if (targetIndex !== -1) {
+            currentIndex = targetIndex;
+            if (isPlaying) {
+                window.speechSynthesis.cancel();
+                speakNext();
+            } else {
+                lineData.forEach(item => item.el.classList.remove('playing'));
+                p.classList.add('playing');
+            }
+        }
+      };
+      tocDiv.appendChild(tocBtn);
+      sectionIndex++;
+      
+      contentDiv.appendChild(p);
+      lineData.push({ text: line, el: p, isJp: true }); 
+      return; 
+    }
+
+    if (isJapanese(line)) {
+      p.classList.add('japanese');
+    } else {
+      p.classList.add('english');
+    }
+
+    contentDiv.appendChild(p);
+    lineData.push({ text: line, el: p, isJp: isJapanese(line) });
+  });
+
+  if (sectionIndex === 0) {
+      tocDiv.style.display = 'none';
+  }
+
+  function populateVoiceList() {
+    availableVoices = window.speechSynthesis.getVoices();
+    enVoiceSelect.innerHTML = '';
+    jaVoiceSelect.innerHTML = '';
+
+    availableVoices.forEach((voice, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = `${voice.name} (${voice.lang})`;
+
+      if (voice.lang.startsWith('en')) {
+        enVoiceSelect.appendChild(option);
+      }
+      if (voice.lang.startsWith('ja')) {
+        jaVoiceSelect.appendChild(option);
+      }
+    });
+
+    selectBestVoice(enVoiceSelect, ['Natural', 'Online', 'Google UK', 'Google US']);
+    selectBestVoice(jaVoiceSelect, ['Nanami', 'Keita', 'Natural', 'Online', 'Google 日本語']);
+  }
+
+  function selectBestVoice(selectElement, preferredNames) {
+    const options = Array.from(selectElement.options);
+    for (let name of preferredNames) {
+      const match = options.find(opt => opt.textContent.includes(name));
+      if (match) {
+        selectElement.value = match.value;
+        return;
+      }
+    }
+  }
+
+  populateVoiceList();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoiceList;
+  }
+
+  function speakNext() {
+    if (!isPlaying) return;
+    
+    // Check if we reached the end
+    if (currentIndex >= lineData.length) {
+        if (infiniteLoopCheckbox.checked) {
+            currentIndex = 0; // Loop back to start
+        } else {
+            isPlaying = false;
+            playBtn.textContent = '▶ 再生';
+            lineData.forEach(item => item.el.classList.remove('playing'));
+            return;
+        }
+    }
+
+    const currentItem = lineData[currentIndex];
+
+    if (/^【.*】$/.test(currentItem.text) || (englishOnlyCheckbox.checked && currentItem.isJp)) {
+      currentIndex++;
+      speakNext();
+      return;
+    }
+
+    lineData.forEach(item => item.el.classList.remove('playing'));
+    currentItem.el.classList.add('playing');
+    
+    currentItem.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    let textToSpeak = currentItem.text;
+    if (currentItem.isJp) {
+        textToSpeak = textToSpeak.replace(/^[0-9]+\.\s*/, '');
+    }
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.rate = parseFloat(speedSelect.value);
+
+    if (currentItem.isJp && jaVoiceSelect.value) {
+      utterance.voice = availableVoices[jaVoiceSelect.value];
+    } else if (!currentItem.isJp && enVoiceSelect.value) {
+      utterance.voice = availableVoices[enVoiceSelect.value];
+    } else {
+      utterance.lang = currentItem.isJp ? 'ja-JP' : 'en-US';
+    }
+
+    utterance.onend = () => {
+      currentIndex++;
+      speakNext();
+    };
+
+    utterance.onerror = (e) => {
+      console.warn("読み上げエラー:", e);
+      currentIndex++;
+      speakNext();
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (isPlaying) {
+        window.speechSynthesis.pause();
+        isPlaying = false;
+        playBtn.textContent = '▶ 再開';
+    } else {
+        isPlaying = true;
+        playBtn.textContent = '⏸ 一時停止';
+        
+        if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+        } else {
+            if (currentIndex >= lineData.length) currentIndex = 0;
+            speakNext();
+        }
+    }
+  });
+
+  stopBtn.addEventListener('click', () => {
+    isPlaying = false;
+    window.speechSynthesis.cancel();
+    playBtn.textContent = '▶ 再生';
+    lineData.forEach(item => item.el.classList.remove('playing'));
+    currentIndex = 0; // Reset index when stopped
+  });
+
+  window.addEventListener('beforeunload', () => {
+    window.speechSynthesis.cancel();
+  });
+
+</script>
+</body>
+</html>
